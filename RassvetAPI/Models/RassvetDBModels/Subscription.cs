@@ -1,14 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+#nullable disable
 
 namespace RassvetAPI.Models.RassvetDBModels
 {
-    public class ClientToSection
+    public partial class Subscription
     {
-        public int ClientId { get; set; }
+        public int Id { get; set; }
         public int SectionId { get; set; }
+        public int ClientId { get; set; }
+        public DateTime StartDate { get; set; }
+        public DateTime ExpirationDate { get; set; }
 
         public virtual ClientInfo Client { get; set; }
         public virtual Section Section { get; set; }

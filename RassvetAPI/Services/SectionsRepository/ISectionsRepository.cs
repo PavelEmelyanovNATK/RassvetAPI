@@ -8,7 +8,8 @@ namespace RassvetAPI.Services.SectionsRepository
 {
     public interface ISectionsRepository
     {
-        Task<List<Section>> GetAllSections();
         Task<Section> GetSection(int ID);
+        Task<List<Section>> GetAllSections();
+        Task<List<Section>> GetClientSections(int clientID);
     }
 }

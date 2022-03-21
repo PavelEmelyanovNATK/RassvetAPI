@@ -19,6 +19,7 @@ namespace RassvetAPI.Models.RassvetDBModels
 
         public virtual Role Role { get; set; }
         public virtual ClientInfo ClientInfo { get; set; }
+        public virtual ManagerInfo ManagerInfo { get; set; }
         public virtual TrenerInfo TrenerInfo { get; set; }
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
     }

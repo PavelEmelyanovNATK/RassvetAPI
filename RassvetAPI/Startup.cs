@@ -34,14 +34,6 @@ namespace RassvetAPI
         {
             services.AddControllers();
 
-            services.AddDbContext<RassvetDBContext>(options =>
-               options
-               .UseLazyLoadingProxies()
-               .UseSqlServer(
-                    Configuration.GetConnectionString("DefaultConnection")),
-                    ServiceLifetime.Transient
-            );
-
             var jwtConfigurationModel = new JwtConfigurationModel();
             Configuration.Bind("Authentication", jwtConfigurationModel);
             services.AddSingleton(jwtConfigurationModel);
@@ -52,10 +44,11 @@ namespace RassvetAPI
             services.AddRefreshTokenGeneratorService();
             services.AddRefreshTokensRepository();
             services.AddRefreshTokenValidator();
-            services.AddAuthService();
-            services.AddRegistrationService();
             services.AddClientsRepository();
+            services.AddClientTrainingsRepository();
             services.AddSectionsRepository();
+            services.AddRegistrationService();
+            services.AddAuthService();
 
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

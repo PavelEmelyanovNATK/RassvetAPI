@@ -10,10 +10,10 @@ namespace RassvetAPI.Services.ClientsRepository
     public interface IClientsRepository
     {
         Task Add(ClientInfo client);
-        Task<ClientInfo> GetByID(int ID);
-        Task<ClientInfo> GetByEmail(string email);
+        Task<ClientInfo> GetClientByID(int ID);
+        Task<ClientInfo> GetClientByEmail(string email);
         Task Edit(ClientInfo client, EditClientModel newClientInfo);
         Task Remove(ClientInfo client);
-        Task<ICollection<ClientInfo>> GetAllClients();
+        Task<List<ClientInfo>> GetAllClients();
     }
 }

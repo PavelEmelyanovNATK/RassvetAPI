@@ -1,16 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+
+#nullable disable
 
 namespace RassvetAPI.Models.RassvetDBModels
 {
-    public partial class ClientToTraining
+    public partial class ClientToGroup
     {
         public int ClientId { get; set; }
-        public int TrainingId { get; set; }
+        public int GroupId { get; set; }
 
         public virtual ClientInfo Client { get; set; }
-        public virtual Training Training { get; set; }
+        public virtual SectionGroup Group { get; set; }
     }
 }

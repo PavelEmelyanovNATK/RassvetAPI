@@ -15,16 +15,14 @@ namespace RassvetAPI.Services.AuthorizationService
 {
     public class AuthorizationService : IAuthorizationService
     {
-        private readonly RassvetDBContext _dao;
         private readonly IPasswordHasher _hasher;
         private readonly JwtAccessTokenGenerator _accessTokenGenerator;
         private readonly JwtRefreshTokenGenerator _refreshTokenGenerator;
         private readonly IRefreshTokensRepository _refreshTokensRepository;
         private readonly JwtRefreshTokenValidator _refreshTokenValidator;
 
-        public AuthorizationService(RassvetDBContext dao, IPasswordHasher hasher, JwtAccessTokenGenerator accessTokenGenerator, JwtRefreshTokenGenerator refreshTokenGenerator, IRefreshTokensRepository refreshTokensRepository, JwtRefreshTokenValidator refreshTokenValidator)
+        public AuthorizationService(IPasswordHasher hasher, JwtAccessTokenGenerator accessTokenGenerator, JwtRefreshTokenGenerator refreshTokenGenerator, IRefreshTokensRepository refreshTokensRepository, JwtRefreshTokenValidator refreshTokenValidator)
         {
-            _dao = dao;
             _hasher = hasher;
             _accessTokenGenerator = accessTokenGenerator;
             _refreshTokenGenerator = refreshTokenGenerator;
@@ -32,8 +30,9 @@ namespace RassvetAPI.Services.AuthorizationService
             _refreshTokenValidator = refreshTokenValidator;
         }
 
-        public async Task<TokensResponse> LogIn(LogInModel logInModel)
+        public async Task<TokensResponse> LogIn( LogInModel logInModel)
         {
+            using RassvetDBContext _dao = new RassvetDBContext();
             var users = await _dao.Users.ToListAsync();
             var user = users.Find(u => u.Email == logInModel.Email && _hasher.Verify(logInModel.Password, u.Password));
             if (user is null) return null;
@@ -45,6 +44,7 @@ namespace RassvetAPI.Services.AuthorizationService
 
         async Task<TokensResponse> Authorize(User user)
         {
+            using RassvetDBContext _dao = new RassvetDBContext();
             var authorizeResponse = new TokensResponse
             {
                 AccessToken = _accessTokenGenerator.GenerateToken(user),
@@ -60,7 +60,7 @@ namespace RassvetAPI.Services.AuthorizationService
             if (user.RefreshTokens.Count() > 5)
             {
                 var toDelete = user.RefreshTokens.SkipLast(5).ToList();
-            
+
                 _dao.RefreshTokens.RemoveRange(toDelete);
                 await _dao.SaveChangesAsync();
             }
@@ -72,6 +72,7 @@ namespace RassvetAPI.Services.AuthorizationService
         
         public async Task<TokensResponse> RefreshTokens(string oldRefreshToken)
         {
+            using RassvetDBContext _dao = new RassvetDBContext();
             var refreshToken = await _refreshTokensRepository.GetByToken(oldRefreshToken);
             if (refreshToken is null) return null;
 
@@ -106,6 +107,7 @@ namespace RassvetAPI.Services.AuthorizationService
 
         public async Task LogoutSession(string accessToken)
         {
+            using RassvetDBContext _dao = new RassvetDBContext();
             var token = await _refreshTokensRepository.GetByToken(accessToken);
             if (token is null) return;
 
@@ -114,6 +116,7 @@ namespace RassvetAPI.Services.AuthorizationService
 
         public async Task LogoutUser(int UserID)
         {
+            using RassvetDBContext _dao = new RassvetDBContext();
             var user = await _dao.Users.FindAsync(UserID);
             if (user is null) return;
 

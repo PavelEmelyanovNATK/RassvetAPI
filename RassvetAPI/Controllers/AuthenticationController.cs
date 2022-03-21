@@ -85,8 +85,11 @@ namespace RassvetAPI.Controllers
         public async Task<IActionResult> Refresh([FromBody] RefreshRequestModel refreshRequest)
         {
             if (!ModelState.IsValid) return BadRequest();
+
             var newTokens = await _authService.RefreshTokens(refreshRequest.RefreshToken);
-            if (newTokens is null) return BadRequest();
+
+            if (newTokens is null || newTokens.RefreshToken is null || newTokens.AccessToken is null) 
+                return BadRequest();
 
             return Ok(newTokens);
         }
@@ -95,6 +98,7 @@ namespace RassvetAPI.Controllers
         public async Task<IActionResult> LogoutSession([FromBody] RefreshRequestModel refreshRequest)
         {
             if (!ModelState.IsValid) return BadRequest();
+
             await _authService.LogoutSession(refreshRequest.RefreshToken);
 
             return Ok();

@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace RassvetAPI.Models.RassvetDBModels
 {
-    public partial class TrenerInfo
+    public partial class ManagerInfo
     {
-        public TrenerInfo()
+        public ManagerInfo()
         {
-            SectionGroups = new HashSet<SectionGroup>();
+            Bills = new HashSet<Bill>();
         }
 
         public int UserId { get; set; }
@@ -18,6 +18,6 @@ namespace RassvetAPI.Models.RassvetDBModels
         public string Patronymic { get; set; }
 
         public virtual User User { get; set; }
-        public virtual ICollection<SectionGroup> SectionGroups { get; set; }
+        public virtual ICollection<Bill> Bills { get; set; }
     }
 }

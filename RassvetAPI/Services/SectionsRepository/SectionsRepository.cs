@@ -18,12 +18,23 @@ namespace RassvetAPI.Services.SectionsRepository
 
         public async Task<List<Section>> GetAllSections()
         {
-            return await _dao.Sections.ToListAsync();
+            using RassvetDBContext _dao = new RassvetDBContext();
+            return await _dao.Sections.ToListAsync(); 
+        }
+
+        public async Task<List<Section>> GetClientSections(int clientID)
+        {
+            using RassvetDBContext _dao = new RassvetDBContext();
+            return await _dao.Sections
+                .Where(s => s.Subscriptions
+                .Any(sub => sub.ClientId == clientID))
+                .ToListAsync();
         }
 
         public async Task<Section> GetSection(int ID)
         {
-            return await _dao.Sections.FindAsync(ID);
+            using RassvetDBContext _dao = new RassvetDBContext();
+            return await _dao.Sections.FindAsync(ID); 
         }
     }
 }

@@ -4,8 +4,9 @@ using RassvetAPI.Models;
 using RassvetAPI.Models.RassvetDBModels;
 using RassvetAPI.Models.ResponseModels;
 using RassvetAPI.Services.ClientsRepository;
-using RassvetAPI.Services.RassvetDBRepository;
 using RassvetAPI.Services.SectionsRepository;
+using RassvetAPI.Services.TrainingsRepository;
+using RassvetAPI.Util.UsefulExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,25 +14,40 @@ using System.Threading.Tasks;
 
 namespace RassvetAPI.Controllers
 {
+    /// <summary>
+    /// Контроллер для авторизованного клиента. Предоставлят методы
+    /// для получения информации, необходимой клиенту. Идентификатор
+    /// клиента хранится в токене авторизации.
+    /// </summary>
     [ApiController]
+    [Authorize(Roles = "Client")]
+    [Route("my")]
     public class ClientController : ControllerBase
     {
         private readonly IClientsRepository _clientsRepo;
         private readonly ISectionsRepository _sectionsRepository;
+        private readonly ITrainingsRepository _trainingsRepository;
 
-        public ClientController(IClientsRepository clientsRepo, ISectionsRepository sectionsRepository)
+        public ClientController(
+            IClientsRepository clientsRepo, 
+            ISectionsRepository sectionsRepository, 
+            ITrainingsRepository trainingsRepository
+            )
         {
             _clientsRepo = clientsRepo;
             _sectionsRepository = sectionsRepository;
+            _trainingsRepository = trainingsRepository;
         }
 
-
-        [Authorize(Roles = "Client")]
-        [HttpGet("clientInfo")]
+        /// <summary>
+        /// Возвращает всю информацию о клинете.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("info")]
         public async Task<IActionResult> GetClientInfo()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetByID(id);
+            var client = await _clientsRepo.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
@@ -46,151 +62,128 @@ namespace RassvetAPI.Controllers
             });
         }
 
-        [Authorize(Roles = "Client")]
-        [HttpGet("clientSections")]
+        /*Пересмотреть решение о необходимости этого метода*/
+        /// <summary>
+        /// Возвращает список секций, в которых состоит клиент.
+        /// </summary>
+        /// <returns></returns>
+        [HttpGet("sections")]
         public async Task<IActionResult> GetClientSections()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetByID(id);
+            var client = await _clientsRepo.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
-            if (client.ClientToSections is null) return Ok();
-
-            var sections = client.ClientToSections.Select(it => new SectionShortResponse
-            {
-                ID = it.Section.Id,
-                SectionName = it.Section.Name
-            });
+            var sections = await _sectionsRepository.GetClientSections(id);
 
             return Ok(sections);
         }
 
-        [Authorize(Roles = "Client")]
-        [HttpGet("clientActiveTrainings")]
+        /// <summary>
+        /// Возвращает список предстоящих тренрировок клинета.
+        /// </summary>
+        /// <returns>Список элементов с короткой информацией о тренировке.</returns>
+        [HttpGet("active-trainings")]
         public async Task<IActionResult> GetClientActiveTrainings()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetByID(id);
+            var client = await _clientsRepo.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
-            if (client.ClientToTrainings is null) return Ok();
+            var trainings = (await _trainingsRepository.GetClientTrainings(id))
+                .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) < DateTime.Now);
 
-            var trainings = new List<ClientTrainingShortResonse>();
+            if (trainings is null) return Ok();
 
-            TrenerInfo trener;
-
-            foreach (var item in client.ClientToTrainings)
-            {
-                if (item.Training.StartDate.AddMinutes(item.Training.DurationInMinutes) >= DateTime.Now)
-                    continue;
-
-                trener = item.Training?.TrenerToTrainings?.FirstOrDefault()?.Trener;
-
-                var trenerFullName = "";
-                if (trener != null)
+            return Ok(trainings
+                .Select(t =>
+                new ClientTrainingShortResonse
                 {
-                    trenerFullName = trener.Surname + " " + trener.Name;
+                    ID = t.Id,
+                    Title = t.Title,
+                    DurationInMinutes = t.DurationInMinutes,
+                    TrenerFullName = t.Group.Trener
+                    .Let(tr => tr.Surname + " " + tr.Name + tr.Patronymic is null ? "" : " " + tr.Patronymic),
+                    StartDate = t.StartDate,
+                    SectionName = t.Group.Section.Name
                 }
-
-                trainings.Add(new ClientTrainingShortResonse
-                {
-                    ID = item.Training.Id,
-                    Title = item.Training.Title,
-                    DurationInMinutes = item.Training.DurationInMinutes,
-                    TrenerFullName = trenerFullName,
-                    StartDate = item.Training.StartDate,
-                    SectionName = item.Training.Section.Name
-                });
-            }
-
-            return Ok(trainings);
+                ));
         }
 
-        [Authorize(Roles = "Client")]
-        [HttpGet("clientPastTrainings")]
+        /// <summary>
+        /// Возвращает список прошедших тренировок клинета.
+        /// </summary>
+        /// <returns>Список элементов с короткой информацией о тренировке.</returns>
+        [HttpGet("past-trainings")]
         public async Task<IActionResult> GetClientPastTrainings()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetByID(id);
+            var client = await _clientsRepo.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
-            if (client.ClientToTrainings is null) return Ok();
+            var trainings = (await _trainingsRepository.GetClientTrainings(id))
+                .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) >= DateTime.Now);
 
-            var trainings = new List<ClientTrainingShortResonse>();
+            if (trainings is null) return Ok();
 
-            TrenerInfo trener;
-
-            foreach (var item in client.ClientToTrainings)
-            {
-                if (item.Training.StartDate.AddMinutes(item.Training.DurationInMinutes) < DateTime.Now)
-                    continue;
-
-                trener = item.Training?.TrenerToTrainings?.FirstOrDefault()?.Trener;
-
-                var trenerFullName = "";
-                if (trener != null)
+            return Ok(trainings
+                .Select(t =>
+                new ClientTrainingShortResonse
                 {
-                    trenerFullName = trener.Surname + " " + trener.Name;
+                    ID = t.Id,
+                    Title = t.Title,
+                    DurationInMinutes = t.DurationInMinutes,
+                    TrenerFullName = t.Group.Trener
+                        .Let(tr => tr.Surname + " " + tr.Name + tr.Patronymic is null ? "" : " " + tr.Patronymic),
+                    StartDate = t.StartDate,
+                    SectionName = t.Group.Section.Name
                 }
-
-                trainings.Add(new ClientTrainingShortResonse
-                {
-                    ID = item.Training.Id,
-                    Title = item.Training.Title,
-                    DurationInMinutes = item.Training.DurationInMinutes,
-                    TrenerFullName = trenerFullName,
-                    StartDate = item.Training.StartDate,
-                    SectionName = item.Training.Section.Name
-                });
-            }
-
-            return Ok(trainings);
+                ));
         }
-
-        [Authorize(Roles = "Client")]
-        [HttpGet("clientTrainingDetails")]
+        
+        /// <summary>
+        /// Возвращает подробную информацию о тренировке.
+        /// </summary>
+        /// <param name="trainingID"></param>
+        /// <returns></returns>
+        [HttpGet("training-details")]
         public async Task<IActionResult> GetClientTrainingDetails(int trainingID)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetByID(id);
+            var client = await _clientsRepo.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
-            if (client.ClientToTrainings is null) return Ok();
+            var training = await _trainingsRepository.GetTraining(trainingID);
+            if (training is null) return BadRequest("Не удалось найти тренировку.");
 
-            var item = client.ClientToTrainings.FirstOrDefault(ct => ct.TrainingId == trainingID);
-
-            if (item is null) return Ok();
-
-            var trener = item.Training?.TrenerToTrainings?.FirstOrDefault()?.Trener;
-
-            var trenerFullName = "";
-            if (trener != null)
+            return Ok(new ClientTrainingDetailResponse
             {
-                trenerFullName = trener.Surname + " " + trener.Name;
-            }
-
-            return Ok(new ClientTrainingDetailResponse {
-                ID = item.Training.Id,
-                Title = item.Training.Title,
-                Room = item.Training.Room,
-                DurationInMinutes = item.Training.DurationInMinutes,
-                Description = item.Training.Description,
-                TrenerFullName = trenerFullName,
-                StartDate = item.Training.StartDate,
-                SectionName = item.Training.Section.Name
+                ID = training.Id,
+                Title = training.Title,
+                Room = training.Room,
+                Description = training.Description,
+                SectionName = training.Group.Section.Name,
+                StartDate = training.StartDate,
+                DurationInMinutes = training.DurationInMinutes,
+                TrenerFullName = training.Group.Trener
+                    .Let(tr => tr.Surname + " " + tr.Name + tr.Patronymic is null ? "" : " " + tr.Patronymic),
             });
         }
 
-        [Authorize(Roles = "Client")]
-        [HttpGet("sectionDetailsForClient")]
+        /// <summary>
+        /// Возвращает подробную информацию о секции.
+        /// </summary>
+        /// <param name="sectionID"></param>
+        /// <returns></returns>
+        [HttpGet("section-details")]
         public async Task<IActionResult> GetSectionDetailsForClient(int sectionID)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetByID(id);
+            var client = await _clientsRepo.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
@@ -204,8 +197,20 @@ namespace RassvetAPI.Controllers
                 SectionName = section.Name,
                 Description = section.Description,
                 Price = section.Price,
-                IsSubscribed = client?.ClientToSections?.Any(s => s.SectionId == section.Id) ?? false
+                IsSubscribed = client.Subscriptions?.Any(s => s.SectionId == sectionID) ?? false
             });
+        }
+
+        /// <summary>
+        /// Возвращает список абонементов клинета.
+        /// </summary>
+        /// <returns></returns>
+        /// <exception cref="NotImplementedException"></exception>
+        [HttpGet("subscriptions")]
+        public async Task<IActionResult> GetClientSubscriptions()
+        {
+            //TODO
+            throw new NotImplementedException();
         }
     }
 }

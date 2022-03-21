@@ -10,7 +10,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using RassvetAPI.Services.RefreshTokensRepository;
 using RassvetAPI.Services.ClientsRepository;
-using RassvetAPI.Services.ClientTrainingsRepository;
+using RassvetAPI.Services.TrainingsRepository;
 using RassvetAPI.Services.SectionsRepository;
 
 namespace RassvetAPI.Services
@@ -20,17 +20,17 @@ namespace RassvetAPI.Services
         public static IServiceCollection AddPasswordHasher(this IServiceCollection serviceCollection)
             => serviceCollection.AddSingleton<IPasswordHasher, PasswordHasher.PasswordHasher>();
 
-        public static IServiceCollection AddRegistrationService(this IServiceCollection serviceCollection)
-            => serviceCollection.AddSingleton<IRegistrationService, RegistrationService.RegistrationService>();
-
-        public static IServiceCollection AddAuthService(this IServiceCollection serviceCollection)
-            => serviceCollection.AddSingleton<IAuthorizationService, AuthorizationService.AuthorizationService>();
-
         public static IServiceCollection AddAccessTokenGeneratorService(this IServiceCollection serviceCollection)
             => serviceCollection.AddSingleton<JwtAccessTokenGenerator>();
 
         public static IServiceCollection AddRefreshTokenGeneratorService(this IServiceCollection serviceCollection)
            => serviceCollection.AddSingleton<JwtRefreshTokenGenerator>();
+
+        public static IServiceCollection AddRegistrationService(this IServiceCollection serviceCollection)
+            => serviceCollection.AddSingleton<IRegistrationService, RegistrationService.RegistrationService>();
+
+        public static IServiceCollection AddAuthService(this IServiceCollection serviceCollection)
+            => serviceCollection.AddSingleton<IAuthorizationService, AuthorizationService.AuthorizationService>();
 
         public static IServiceCollection AddRefreshTokensRepository(this IServiceCollection serviceCollection)
            => serviceCollection.AddSingleton<IRefreshTokensRepository, RefreshTokensRepository.RefreshTokensRepository>();
@@ -42,7 +42,7 @@ namespace RassvetAPI.Services
            => serviceCollection.AddSingleton<IClientsRepository, ClientsRepository.ClientsRepository>();
 
         public static IServiceCollection AddClientTrainingsRepository(this IServiceCollection serviceCollection)
-           => serviceCollection.AddSingleton<ITrainingsRepository, ClientTrainingsRepository.TrainingsRepository>();
+           => serviceCollection.AddSingleton<ITrainingsRepository, TrainingsRepository.TrainingsRepository>();
 
         public static IServiceCollection AddSectionsRepository(this IServiceCollection serviceCollection)
            => serviceCollection.AddSingleton<ISectionsRepository, SectionsRepository.SectionsRepository>();
