@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
@@ -37,6 +38,7 @@ namespace RassvetAPI.Models.RassvetDBModels
             optionsBuilder
                .UseLazyLoadingProxies()
                .UseSqlServer("Server=NHPC\\SQLEXPRESS;Database=RassvetDB;Trusted_Connection=True;User ID=sa;Password=sa");
+            
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -290,7 +292,7 @@ namespace RassvetAPI.Models.RassvetDBModels
                     .HasMaxLength(150);
 
                 entity.HasOne(d => d.Group)
-                    .WithMany(p => p.training)
+                    .WithMany(p => p.Training)
                     .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Training_Group");

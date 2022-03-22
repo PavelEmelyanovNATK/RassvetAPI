@@ -13,6 +13,8 @@ namespace RassvetAPI.Models
 
         public string SectionName { get; set; }
 
+        public string GroupName { get; set; }
+
         public DateTime StartDate { get; set; }
 
         public int DurationInMinutes { get; set; }

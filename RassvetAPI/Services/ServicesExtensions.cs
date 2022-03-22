@@ -12,6 +12,8 @@ using RassvetAPI.Services.RefreshTokensRepository;
 using RassvetAPI.Services.ClientsRepository;
 using RassvetAPI.Services.TrainingsRepository;
 using RassvetAPI.Services.SectionsRepository;
+using RassvetAPI.Services.TrenersRepository;
+using RassvetAPI.Services.GroupsRepository;
 
 namespace RassvetAPI.Services
 {
@@ -46,5 +48,11 @@ namespace RassvetAPI.Services
 
         public static IServiceCollection AddSectionsRepository(this IServiceCollection serviceCollection)
            => serviceCollection.AddSingleton<ISectionsRepository, SectionsRepository.SectionsRepository>();
+
+        public static IServiceCollection AddTrenersRepository(this IServiceCollection serviceCollection)
+           => serviceCollection.AddSingleton<ITrenersRepository, TrenersRepository.TrenersRepository>();
+
+        public static IServiceCollection AddGroupsRepository(this IServiceCollection serviceCollection)
+           => serviceCollection.AddSingleton<IGroupsRepository, GroupsRepository.GroupsRepository>();
     }
 }

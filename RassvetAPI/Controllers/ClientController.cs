@@ -4,8 +4,10 @@ using RassvetAPI.Models;
 using RassvetAPI.Models.RassvetDBModels;
 using RassvetAPI.Models.ResponseModels;
 using RassvetAPI.Services.ClientsRepository;
+using RassvetAPI.Services.GroupsRepository;
 using RassvetAPI.Services.SectionsRepository;
 using RassvetAPI.Services.TrainingsRepository;
+using RassvetAPI.Services.TrenersRepository;
 using RassvetAPI.Util.UsefulExtensions;
 using System;
 using System.Collections.Generic;
@@ -21,22 +23,27 @@ namespace RassvetAPI.Controllers
     /// </summary>
     [ApiController]
     [Authorize(Roles = "Client")]
-    [Route("my")]
+    [Route("me")]
     public class ClientController : ControllerBase
     {
         private readonly IClientsRepository _clientsRepo;
         private readonly ISectionsRepository _sectionsRepository;
         private readonly ITrainingsRepository _trainingsRepository;
+        private readonly ITrenersRepository _trenersRepository;
+        private readonly IGroupsRepository _groupsRepository;
 
         public ClientController(
-            IClientsRepository clientsRepo, 
-            ISectionsRepository sectionsRepository, 
-            ITrainingsRepository trainingsRepository
-            )
+            IClientsRepository clientsRepo,
+            ISectionsRepository sectionsRepository,
+            ITrainingsRepository trainingsRepository,
+            ITrenersRepository trenersRepository, 
+            IGroupsRepository groupsRepository)
         {
             _clientsRepo = clientsRepo;
             _sectionsRepository = sectionsRepository;
             _trainingsRepository = trainingsRepository;
+            _trenersRepository = trenersRepository;
+            _groupsRepository = groupsRepository;
         }
 
         /// <summary>
@@ -93,23 +100,34 @@ namespace RassvetAPI.Controllers
             if (client is null) return Unauthorized();
 
             var trainings = (await _trainingsRepository.GetClientTrainings(id))
-                .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) < DateTime.Now);
+                .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) >= DateTime.Now);
 
             if (trainings is null) return Ok();
 
-            return Ok(trainings
-                .Select(t =>
-                new ClientTrainingShortResonse
+            SectionGroup group;
+            TrenerInfo trener;
+            Section section;
+
+            return Ok(await Task.WhenAll(trainings
+                .Select(async t =>
                 {
-                    ID = t.Id,
-                    Title = t.Title,
-                    DurationInMinutes = t.DurationInMinutes,
-                    TrenerFullName = t.Group.Trener
-                    .Let(tr => tr.Surname + " " + tr.Name + tr.Patronymic is null ? "" : " " + tr.Patronymic),
-                    StartDate = t.StartDate,
-                    SectionName = t.Group.Section.Name
+                    group = await _groupsRepository.GetGroup(t.GroupId);
+                    trener = await _trenersRepository.GetTrener(group.TrenerId);
+                    section = await _sectionsRepository.GetSection(group.SectionId);
+
+                    return new ClientTrainingShortResonse
+                    {
+                        ID = t.Id,
+                        Title = t.Title,
+                        DurationInMinutes = t.DurationInMinutes,
+                        TrenerFullName = trener
+                            .Let(tr => tr.Surname + " " + tr.Name + (tr.Patronymic is null ? "" : " " + tr.Patronymic)),
+                        StartDate = t.StartDate,
+                        SectionName = section.Name,
+                        GroupName = group.Name
+                    };
                 }
-                ));
+                )));
         }
 
         /// <summary>
@@ -125,23 +143,34 @@ namespace RassvetAPI.Controllers
             if (client is null) return Unauthorized();
 
             var trainings = (await _trainingsRepository.GetClientTrainings(id))
-                .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) >= DateTime.Now);
+                .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) < DateTime.Now);
 
             if (trainings is null) return Ok();
 
-            return Ok(trainings
-                .Select(t =>
-                new ClientTrainingShortResonse
+            SectionGroup group;
+            TrenerInfo trener;
+            Section section;
+
+            return Ok(await Task.WhenAll(trainings
+                .Select(async t =>
                 {
-                    ID = t.Id,
-                    Title = t.Title,
-                    DurationInMinutes = t.DurationInMinutes,
-                    TrenerFullName = t.Group.Trener
-                        .Let(tr => tr.Surname + " " + tr.Name + tr.Patronymic is null ? "" : " " + tr.Patronymic),
-                    StartDate = t.StartDate,
-                    SectionName = t.Group.Section.Name
+                    group = await _groupsRepository.GetGroup(t.GroupId);
+                    trener = await _trenersRepository.GetTrener(group.TrenerId);
+                    section = await _sectionsRepository.GetSection(group.SectionId);
+
+                    return new ClientTrainingShortResonse
+                    {
+                        ID = t.Id,
+                        Title = t.Title,
+                        DurationInMinutes = t.DurationInMinutes,
+                        TrenerFullName = trener
+                            .Let(tr => tr.Surname + " " + tr.Name + (tr.Patronymic is null ? "" : " " + tr.Patronymic)),
+                        StartDate = t.StartDate,
+                        SectionName = section.Name,
+                        GroupName = group.Name
+                    };
                 }
-                ));
+                )));
         }
         
         /// <summary>
@@ -149,7 +178,7 @@ namespace RassvetAPI.Controllers
         /// </summary>
         /// <param name="trainingID"></param>
         /// <returns></returns>
-        [HttpGet("training-details")]
+        [HttpGet("training-details/{trainingID}")]
         public async Task<IActionResult> GetClientTrainingDetails(int trainingID)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
@@ -160,17 +189,21 @@ namespace RassvetAPI.Controllers
             var training = await _trainingsRepository.GetTraining(trainingID);
             if (training is null) return BadRequest("Не удалось найти тренировку.");
 
+            var group = await _groupsRepository.GetGroup(training.GroupId);
+            var trener = await _trenersRepository.GetTrener(group.TrenerId);
+            var section = await _sectionsRepository.GetSection(group.SectionId);
+
             return Ok(new ClientTrainingDetailResponse
             {
                 ID = training.Id,
                 Title = training.Title,
                 Room = training.Room,
                 Description = training.Description,
-                SectionName = training.Group.Section.Name,
+                SectionName = section.Name,
                 StartDate = training.StartDate,
                 DurationInMinutes = training.DurationInMinutes,
-                TrenerFullName = training.Group.Trener
-                    .Let(tr => tr.Surname + " " + tr.Name + tr.Patronymic is null ? "" : " " + tr.Patronymic),
+                TrenerFullName = trener
+                    .Let(tr => tr.Surname + " " + tr.Name + (tr.Patronymic is null ? "" : " " + tr.Patronymic)),
             });
         }
 

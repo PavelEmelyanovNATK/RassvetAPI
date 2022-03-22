@@ -10,7 +10,7 @@ namespace RassvetAPI.Models.RassvetDBModels
         public SectionGroup()
         {
             ClientToGroups = new HashSet<ClientToGroup>();
-            training = new HashSet<Training>();
+            Training = new HashSet<Training>();
         }
 
         public int Id { get; set; }
@@ -21,6 +21,6 @@ namespace RassvetAPI.Models.RassvetDBModels
         public virtual Section Section { get; set; }
         public virtual TrenerInfo Trener { get; set; }
         public virtual ICollection<ClientToGroup> ClientToGroups { get; set; }
-        public virtual ICollection<Training> training { get; set; }
+        public virtual ICollection<Training> Training { get; set; }
     }
 }

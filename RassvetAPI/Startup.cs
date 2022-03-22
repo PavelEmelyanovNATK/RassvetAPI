@@ -34,6 +34,8 @@ namespace RassvetAPI
         {
             services.AddControllers();
 
+            services.AddDbContext<RassvetDBContext>();
+
             var jwtConfigurationModel = new JwtConfigurationModel();
             Configuration.Bind("Authentication", jwtConfigurationModel);
             services.AddSingleton(jwtConfigurationModel);
@@ -47,6 +49,8 @@ namespace RassvetAPI
             services.AddClientsRepository();
             services.AddClientTrainingsRepository();
             services.AddSectionsRepository();
+            services.AddTrenersRepository();
+            services.AddGroupsRepository();
             services.AddRegistrationService();
             services.AddAuthService();
 

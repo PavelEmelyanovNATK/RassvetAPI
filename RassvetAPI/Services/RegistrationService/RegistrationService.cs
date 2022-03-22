@@ -12,7 +12,7 @@ namespace RassvetAPI.Services.RegistrationService
     {
         private readonly IPasswordHasher _hasher;
 
-        public RegistrationService(RassvetDBContext dao, IPasswordHasher hasher)
+        public RegistrationService(IPasswordHasher hasher)
         {
             _hasher = hasher;
         }

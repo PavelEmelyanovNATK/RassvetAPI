@@ -9,13 +9,6 @@ namespace RassvetAPI.Services.SectionsRepository
 {
     public class SectionsRepository : ISectionsRepository
     {
-        private readonly RassvetDBContext _dao;
-
-        public SectionsRepository(RassvetDBContext dao)
-        {
-            _dao = dao;
-        }
-
         public async Task<List<Section>> GetAllSections()
         {
             using RassvetDBContext _dao = new RassvetDBContext();
