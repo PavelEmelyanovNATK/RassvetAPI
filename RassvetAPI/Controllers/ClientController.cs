@@ -104,30 +104,20 @@ namespace RassvetAPI.Controllers
 
             if (trainings is null) return Ok();
 
-            SectionGroup group;
-            TrenerInfo trener;
-            Section section;
-
-            return Ok(await Task.WhenAll(trainings
-                .Select(async t =>
+            return Ok(trainings
+                .Select(t =>
+                new ClientTrainingShortResonse
                 {
-                    group = await _groupsRepository.GetGroup(t.GroupId);
-                    trener = await _trenersRepository.GetTrener(group.TrenerId);
-                    section = await _sectionsRepository.GetSection(group.SectionId);
-
-                    return new ClientTrainingShortResonse
-                    {
-                        ID = t.Id,
-                        Title = t.Title,
-                        DurationInMinutes = t.DurationInMinutes,
-                        TrenerFullName = trener
+                    ID = t.Id,
+                    Title = t.Title,
+                    DurationInMinutes = t.DurationInMinutes,
+                    TrenerFullName = t.Group.Trener
                             .Let(tr => tr.Surname + " " + tr.Name + (tr.Patronymic is null ? "" : " " + tr.Patronymic)),
-                        StartDate = t.StartDate,
-                        SectionName = section.Name,
-                        GroupName = group.Name
-                    };
+                    StartDate = t.StartDate,
+                    SectionName = t.Group.Section.Name,
+                    GroupName = t.Group.Name
                 }
-                )));
+                ));
         }
 
         /// <summary>
@@ -147,30 +137,20 @@ namespace RassvetAPI.Controllers
 
             if (trainings is null) return Ok();
 
-            SectionGroup group;
-            TrenerInfo trener;
-            Section section;
-
-            return Ok(await Task.WhenAll(trainings
-                .Select(async t =>
-                {
-                    group = await _groupsRepository.GetGroup(t.GroupId);
-                    trener = await _trenersRepository.GetTrener(group.TrenerId);
-                    section = await _sectionsRepository.GetSection(group.SectionId);
-
-                    return new ClientTrainingShortResonse
+            return Ok(trainings
+                .Select(t =>
+                new ClientTrainingShortResonse
                     {
                         ID = t.Id,
                         Title = t.Title,
                         DurationInMinutes = t.DurationInMinutes,
-                        TrenerFullName = trener
+                        TrenerFullName = t.Group.Trener
                             .Let(tr => tr.Surname + " " + tr.Name + (tr.Patronymic is null ? "" : " " + tr.Patronymic)),
                         StartDate = t.StartDate,
-                        SectionName = section.Name,
-                        GroupName = group.Name
-                    };
-                }
-                )));
+                        SectionName = t.Group.Section.Name,
+                        GroupName = t.Group.Name
+                    }
+                ));
         }
         
         /// <summary>
@@ -189,20 +169,16 @@ namespace RassvetAPI.Controllers
             var training = await _trainingsRepository.GetTraining(trainingID);
             if (training is null) return BadRequest("Не удалось найти тренировку.");
 
-            var group = await _groupsRepository.GetGroup(training.GroupId);
-            var trener = await _trenersRepository.GetTrener(group.TrenerId);
-            var section = await _sectionsRepository.GetSection(group.SectionId);
-
             return Ok(new ClientTrainingDetailResponse
             {
                 ID = training.Id,
                 Title = training.Title,
                 Room = training.Room,
                 Description = training.Description,
-                SectionName = section.Name,
+                SectionName = training.Group.Section.Name,
                 StartDate = training.StartDate,
                 DurationInMinutes = training.DurationInMinutes,
-                TrenerFullName = trener
+                TrenerFullName = training.Group.Trener
                     .Let(tr => tr.Surname + " " + tr.Name + (tr.Patronymic is null ? "" : " " + tr.Patronymic)),
             });
         }

@@ -9,15 +9,20 @@ namespace RassvetAPI.Services.SectionsRepository
 {
     public class SectionsRepository : ISectionsRepository
     {
+        private readonly RassvetDBContext _dao;
+
+        public SectionsRepository(RassvetDBContext dao)
+        {
+            _dao = dao;
+        }
+
         public async Task<List<Section>> GetAllSections()
         {
-            using RassvetDBContext _dao = new RassvetDBContext();
             return await _dao.Sections.ToListAsync(); 
         }
 
         public async Task<List<Section>> GetClientSections(int clientID)
         {
-            using RassvetDBContext _dao = new RassvetDBContext();
             return await _dao.Sections
                 .Where(s => s.Subscriptions
                 .Any(sub => sub.ClientId == clientID))
@@ -26,7 +31,6 @@ namespace RassvetAPI.Services.SectionsRepository
 
         public async Task<Section> GetSection(int ID)
         {
-            using RassvetDBContext _dao = new RassvetDBContext();
             return await _dao.Sections.FindAsync(ID); 
         }
     }

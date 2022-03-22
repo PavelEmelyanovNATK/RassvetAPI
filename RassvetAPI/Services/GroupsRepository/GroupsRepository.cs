@@ -7,22 +7,23 @@ namespace RassvetAPI.Services.GroupsRepository
 {
     public class GroupsRepository : IGroupsRepository
     {
+        private readonly RassvetDBContext _dao;
+
+        public GroupsRepository(RassvetDBContext dao)
+        {
+            _dao = dao;
+        }
+
         public Task AddGroup(SectionGroup group)
         {
             throw new System.NotImplementedException();
         }
 
         public async Task<List<SectionGroup>> GetAllGroups()
-        {
-            using RassvetDBContext _dao = new RassvetDBContext();
-            return await _dao.SectionGroups.ToListAsync();
-        }
+            => await _dao.SectionGroups.ToListAsync();
 
         public async Task<SectionGroup> GetGroup(int groupID)
-        {
-            using RassvetDBContext _dao = new RassvetDBContext();
-            return await _dao.SectionGroups.FindAsync(groupID);
-        }
+            => await _dao.SectionGroups.FindAsync(groupID);
 
         public Task RemoveGroup(SectionGroup group)
         {

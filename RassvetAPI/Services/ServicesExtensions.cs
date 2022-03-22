@@ -28,31 +28,31 @@ namespace RassvetAPI.Services
         public static IServiceCollection AddRefreshTokenGeneratorService(this IServiceCollection serviceCollection)
            => serviceCollection.AddSingleton<JwtRefreshTokenGenerator>();
 
-        public static IServiceCollection AddRegistrationService(this IServiceCollection serviceCollection)
-            => serviceCollection.AddSingleton<IRegistrationService, RegistrationService.RegistrationService>();
-
-        public static IServiceCollection AddAuthService(this IServiceCollection serviceCollection)
-            => serviceCollection.AddSingleton<IAuthorizationService, AuthorizationService.AuthorizationService>();
-
-        public static IServiceCollection AddRefreshTokensRepository(this IServiceCollection serviceCollection)
-           => serviceCollection.AddSingleton<IRefreshTokensRepository, RefreshTokensRepository.RefreshTokensRepository>();
-
         public static IServiceCollection AddRefreshTokenValidator(this IServiceCollection serviceCollection)
            => serviceCollection.AddSingleton<JwtRefreshTokenValidator>();
 
+        public static IServiceCollection AddRegistrationService(this IServiceCollection serviceCollection)
+            => serviceCollection.AddScoped<IRegistrationService, RegistrationService.RegistrationService>();
+
+        public static IServiceCollection AddAuthService(this IServiceCollection serviceCollection)
+            => serviceCollection.AddScoped<IAuthorizationService, AuthorizationService.AuthorizationService>();
+
+        public static IServiceCollection AddRefreshTokensRepository(this IServiceCollection serviceCollection)
+           => serviceCollection.AddScoped<IRefreshTokensRepository, RefreshTokensRepository.RefreshTokensRepository>();
+
         public static IServiceCollection AddClientsRepository(this IServiceCollection serviceCollection)
-           => serviceCollection.AddSingleton<IClientsRepository, ClientsRepository.ClientsRepository>();
+           => serviceCollection.AddScoped<IClientsRepository, ClientsRepository.ClientsRepository>();
 
         public static IServiceCollection AddClientTrainingsRepository(this IServiceCollection serviceCollection)
-           => serviceCollection.AddSingleton<ITrainingsRepository, TrainingsRepository.TrainingsRepository>();
+           => serviceCollection.AddScoped<ITrainingsRepository, TrainingsRepository.TrainingsRepository>();
 
         public static IServiceCollection AddSectionsRepository(this IServiceCollection serviceCollection)
-           => serviceCollection.AddSingleton<ISectionsRepository, SectionsRepository.SectionsRepository>();
+           => serviceCollection.AddScoped<ISectionsRepository, SectionsRepository.SectionsRepository>();
 
         public static IServiceCollection AddTrenersRepository(this IServiceCollection serviceCollection)
-           => serviceCollection.AddSingleton<ITrenersRepository, TrenersRepository.TrenersRepository>();
+           => serviceCollection.AddScoped<ITrenersRepository, TrenersRepository.TrenersRepository>();
 
         public static IServiceCollection AddGroupsRepository(this IServiceCollection serviceCollection)
-           => serviceCollection.AddSingleton<IGroupsRepository, GroupsRepository.GroupsRepository>();
+           => serviceCollection.AddScoped<IGroupsRepository, GroupsRepository.GroupsRepository>();
     }
 }

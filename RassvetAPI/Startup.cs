@@ -34,7 +34,11 @@ namespace RassvetAPI
         {
             services.AddControllers();
 
-            services.AddDbContext<RassvetDBContext>();
+            services.AddDbContext<RassvetDBContext>(
+                options => options
+                    .UseLazyLoadingProxies()
+                    .UseSqlServer(Configuration.GetConnectionString("DefaultConnection"))
+            );
 
             var jwtConfigurationModel = new JwtConfigurationModel();
             Configuration.Bind("Authentication", jwtConfigurationModel);

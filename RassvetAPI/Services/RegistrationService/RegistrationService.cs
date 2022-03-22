@@ -10,16 +10,20 @@ namespace RassvetAPI.Services.RegistrationService
 {
     public class RegistrationService : IRegistrationService
     {
+        private readonly RassvetDBContext _dao;
         private readonly IPasswordHasher _hasher;
 
-        public RegistrationService(IPasswordHasher hasher)
+        public RegistrationService(
+            IPasswordHasher hasher, 
+            RassvetDBContext dao
+            )
         {
             _hasher = hasher;
+            _dao = dao;
         }
 
         public async Task RegisterUser(ClientRegisterModel clientRegisterModel)
         {
-            using RassvetDBContext _dao = new RassvetDBContext();
             var user = new User
             {
                 Email = clientRegisterModel.Email,
@@ -42,7 +46,6 @@ namespace RassvetAPI.Services.RegistrationService
 
         public async Task RegisterAdmin(AdminRegisterModel clientRegisterModel)
         {
-            using RassvetDBContext _dao = new RassvetDBContext();
             var user = new User
             {
                 Email = clientRegisterModel.Email,
