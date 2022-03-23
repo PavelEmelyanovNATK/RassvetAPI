@@ -1,13 +1,8 @@
-﻿
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using RassvetAPI.Services.JwtToken;
 using RassvetAPI.Services.AuthorizationService;
 using RassvetAPI.Services.PasswordHasher;
 using RassvetAPI.Services.RegistrationService;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using RassvetAPI.Services.RefreshTokensRepository;
 using RassvetAPI.Services.ClientsRepository;
 using RassvetAPI.Services.TrainingsRepository;

@@ -1,13 +1,11 @@
-﻿
-using Microsoft.EntityFrameworkCore;
-using RassvetAPI.Models;
+﻿using Microsoft.EntityFrameworkCore;
 using RassvetAPI.Models.RassvetDBModels;
+using RassvetAPI.Models.RequestModels;
 using RassvetAPI.Models.ResponseModels;
 using RassvetAPI.Services.JwtToken;
 using RassvetAPI.Services.PasswordHasher;
 using RassvetAPI.Services.RefreshTokensRepository;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -23,11 +21,11 @@ namespace RassvetAPI.Services.AuthorizationService
         private readonly JwtRefreshTokenValidator _refreshTokenValidator;
 
         public AuthorizationService(
-            IPasswordHasher hasher, 
-            JwtAccessTokenGenerator accessTokenGenerator, 
-            JwtRefreshTokenGenerator refreshTokenGenerator, 
-            IRefreshTokensRepository refreshTokensRepository, 
-            JwtRefreshTokenValidator refreshTokenValidator, 
+            IPasswordHasher hasher,
+            JwtAccessTokenGenerator accessTokenGenerator,
+            JwtRefreshTokenGenerator refreshTokenGenerator,
+            IRefreshTokensRepository refreshTokensRepository,
+            JwtRefreshTokenValidator refreshTokenValidator,
             RassvetDBContext dao
             )
         {
@@ -39,17 +37,23 @@ namespace RassvetAPI.Services.AuthorizationService
             _dao = dao;
         }
 
-        public async Task<TokensResponse> LogIn( LogInModel logInModel)
+        public async Task<TokensResponse> LogInAsync(LogInModel logInModel)
         {
             var users = await _dao.Users.ToListAsync();
             var user = users.Find(u => u.Email == logInModel.Email && _hasher.Verify(logInModel.Password, u.Password));
-            if (user is null) return null;
+            if (user is null) 
+                throw new UserNotFoundException("Неверный логин или пароль.");
 
             var loginResponse = await Authorize(user);
 
             return loginResponse;
         }
 
+        /// <summary>
+        /// Генерирует токен доступа, содержащий роль и id пользователя, и токен обновления.
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
         async Task<TokensResponse> Authorize(User user)
         {
             var authorizeResponse = new TokensResponse
@@ -64,6 +68,8 @@ namespace RassvetAPI.Services.AuthorizationService
                 Token = authorizeResponse.RefreshToken
             };
 
+            //Ограничение на кол-во токенов обновления в базе данных.
+            //Если токенов больше 5, удаляется самый ранний из существующих.
             if (user.RefreshTokens.Count() > 5)
             {
                 var toDelete = user.RefreshTokens.SkipLast(5).ToList();
@@ -76,19 +82,21 @@ namespace RassvetAPI.Services.AuthorizationService
 
             return authorizeResponse;
         }
-        
-        public async Task<TokensResponse> RefreshTokens(string oldRefreshToken)
+
+        public async Task<TokensResponse> RefreshTokensAsync(string oldRefreshToken)
         {
             var refreshToken = await _refreshTokensRepository.GetByToken(oldRefreshToken);
-            if (refreshToken is null) return null;
+            if (refreshToken is null) 
+                throw new UserAlreadyLogOutedException("Токен обновления не найден.");
 
             var user = await _dao.Users.FindAsync(refreshToken.UserId);
-            if (user is null) return null;
+            if (user is null)
+                throw new UserNotFoundException("Пользователь не найден.");
 
             if (!_refreshTokenValidator.Validate(oldRefreshToken))
             {
                 await _refreshTokensRepository.Remove(refreshToken);
-                return null;
+                throw new InvalidRefreshTokenException("Неверный токен обновления.");
             }
 
             if (user.RefreshTokens.Count() > 5)
@@ -111,7 +119,7 @@ namespace RassvetAPI.Services.AuthorizationService
             return tokensResponse;
         }
 
-        public async Task LogoutSession(string accessToken)
+        public async Task LogoutSessionAsync(string accessToken)
         {
             var token = await _refreshTokensRepository.GetByToken(accessToken);
             if (token is null) return;
@@ -119,12 +127,35 @@ namespace RassvetAPI.Services.AuthorizationService
             await _refreshTokensRepository.Remove(token);
         }
 
-        public async Task LogoutUser(int UserID)
+        public async Task LogoutUserAsync(int UserID)
         {
             var user = await _dao.Users.FindAsync(UserID);
             if (user is null) return;
 
             await _refreshTokensRepository.RemoveAll(UserID);
         }
+    }
+
+    public abstract class AuthException : Exception {
+        public AuthException() : base() { }
+        public AuthException(string message) : base(message) { }
+    }
+
+    public class UserNotFoundException : AuthException
+    {
+        public UserNotFoundException() : base() { }
+        public UserNotFoundException(string message) : base(message) { }
+    }
+
+    public class UserAlreadyLogOutedException : AuthException
+    {
+        public UserAlreadyLogOutedException() : base(){ }
+        public UserAlreadyLogOutedException(string message) : base(message) { }
+    }
+
+    public class InvalidRefreshTokenException : AuthException
+    {
+        public InvalidRefreshTokenException() : base() { }
+        public InvalidRefreshTokenException(string message) : base(message) { }
     }
 }

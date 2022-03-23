@@ -26,24 +26,18 @@ namespace RassvetAPI.Controllers
     [Route("me")]
     public class ClientController : ControllerBase
     {
-        private readonly IClientsRepository _clientsRepo;
+        private readonly IClientsRepository _clientsRepository;
         private readonly ISectionsRepository _sectionsRepository;
         private readonly ITrainingsRepository _trainingsRepository;
-        private readonly ITrenersRepository _trenersRepository;
-        private readonly IGroupsRepository _groupsRepository;
 
         public ClientController(
             IClientsRepository clientsRepo,
             ISectionsRepository sectionsRepository,
-            ITrainingsRepository trainingsRepository,
-            ITrenersRepository trenersRepository, 
-            IGroupsRepository groupsRepository)
+            ITrainingsRepository trainingsRepository)
         {
-            _clientsRepo = clientsRepo;
+            _clientsRepository = clientsRepo;
             _sectionsRepository = sectionsRepository;
             _trainingsRepository = trainingsRepository;
-            _trenersRepository = trenersRepository;
-            _groupsRepository = groupsRepository;
         }
 
         /// <summary>
@@ -54,7 +48,7 @@ namespace RassvetAPI.Controllers
         public async Task<IActionResult> GetClientInfo()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
@@ -78,13 +72,18 @@ namespace RassvetAPI.Controllers
         public async Task<IActionResult> GetClientSections()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
             var sections = await _sectionsRepository.GetClientSections(id);
 
-            return Ok(sections);
+            return Ok(sections.Select(s => 
+            new SectionShortResponse
+            {
+                ID = s.Id,
+                SectionName = s.Name
+            }));
         }
 
         /// <summary>
@@ -95,7 +94,7 @@ namespace RassvetAPI.Controllers
         public async Task<IActionResult> GetClientActiveTrainings()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
@@ -128,7 +127,7 @@ namespace RassvetAPI.Controllers
         public async Task<IActionResult> GetClientPastTrainings()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
@@ -162,7 +161,7 @@ namespace RassvetAPI.Controllers
         public async Task<IActionResult> GetClientTrainingDetails(int trainingID)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
@@ -192,7 +191,7 @@ namespace RassvetAPI.Controllers
         public async Task<IActionResult> GetSectionDetailsForClient(int sectionID)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepo.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByID(id);
 
             if (client is null) return Unauthorized();
 
@@ -214,12 +213,22 @@ namespace RassvetAPI.Controllers
         /// Возвращает список абонементов клинета.
         /// </summary>
         /// <returns></returns>
-        /// <exception cref="NotImplementedException"></exception>
         [HttpGet("subscriptions")]
         public async Task<IActionResult> GetClientSubscriptions()
         {
-            //TODO
-            throw new NotImplementedException();
+            var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
+            var client = await _clientsRepository.GetClientByID(id);
+
+            if (client is null) return Unauthorized();
+
+            return Ok(client.Subscriptions
+                .Select(s =>
+                new SubscriptionResponse
+                {
+                    ID = s.Id,
+                    BarcodeString = $"4399{s.Id:00000000}"
+                }
+                ));
         }
     }
 }

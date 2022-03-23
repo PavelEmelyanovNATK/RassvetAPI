@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RassvetAPI.Models
+namespace RassvetAPI.Models.ResponseModels
 {
     public class ClientTrainingShortResonse
     {
