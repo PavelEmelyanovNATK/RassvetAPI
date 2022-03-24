@@ -14,6 +14,7 @@ using RassvetAPI.Services.RefreshTokensRepository;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RassvetAPI.Models.RequestModels;
+using RassvetAPI.Util.UsefulExtensions;
 
 namespace RassvetAPI.Controllers
 {
@@ -22,7 +23,7 @@ namespace RassvetAPI.Controllers
     /// </summary>
     [ApiController]
     [Route("auth")]
-    public class AuthenticationController : ControllerBase
+    public class AuthenticationController : ApiControllerBase
     {
         private readonly IAuthorizationService _authService;
         private readonly IRegistrationService _registrationService;
@@ -54,7 +55,7 @@ namespace RassvetAPI.Controllers
             }
             catch (AuthException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message.WrapArray());
             }
         }
 
@@ -72,7 +73,7 @@ namespace RassvetAPI.Controllers
             }
             catch (RegistrationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message.WrapArray());
             }
 
             return Ok();
@@ -94,7 +95,7 @@ namespace RassvetAPI.Controllers
             }
             catch (RegistrationException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message.WrapArray());
             }
 
             return Ok();
@@ -114,7 +115,7 @@ namespace RassvetAPI.Controllers
             }
             catch (AuthException ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message.WrapArray());
             }
         }
 

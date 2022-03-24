@@ -49,10 +49,11 @@ namespace RassvetAPI.Services.RefreshTokensRepository
             await _dao.SaveChangesAsync();
         }
 
-        public async Task UpdateTokenAsync(RefreshToken token, string newToken)
+        public async Task UpdateTokenAsync(int tokenId, string newToken)
         {
-            var curToken = await GetByIDAsync(token.Id);
+            var curToken = await GetByIDAsync(tokenId);
             curToken.Token = newToken;
+
             await _dao.SaveChangesAsync();
         }
     }

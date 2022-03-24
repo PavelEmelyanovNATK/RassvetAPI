@@ -87,7 +87,7 @@ namespace RassvetAPI.Services.AuthorizationService
         {
             var refreshToken = await _refreshTokensRepository.GetByTokenAsync(oldRefreshToken);
             if (refreshToken is null) 
-                throw new UserAlreadyLogOutedException("Токен обновления не найден.");
+                throw new UserAlreadyLogOutedException("Токен обновления не действителен.");
 
             var user = await _dao.Users.FindAsync(refreshToken.UserId);
             if (user is null)
@@ -101,14 +101,14 @@ namespace RassvetAPI.Services.AuthorizationService
 
             if (user.RefreshTokens.Count() > 5)
             {
-                var toDelete = user.RefreshTokens.SkipLast(5).ToList();
+                var toDelete = user.RefreshTokens.Skip(5).ToList();
 
                 _dao.RefreshTokens.RemoveRange(toDelete);
                 await _dao.SaveChangesAsync();
             }
 
             var newToken = _refreshTokenGenerator.GenerateToken(user);
-            await _refreshTokensRepository.UpdateTokenAsync(refreshToken, newToken);
+            await _refreshTokensRepository.UpdateTokenAsync(refreshToken.Id, newToken);
 
             var tokensResponse = new TokensResponse
             {

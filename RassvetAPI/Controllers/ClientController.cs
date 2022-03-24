@@ -102,10 +102,8 @@ namespace RassvetAPI.Controllers
             var trainings = (await _trainingsRepository.GetClientTrainingsAsync(id))
                 .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) >= DateTime.Now);
 
-            if (trainings is null) return Ok();
-
             return Ok(trainings
-                .Select(t =>
+                ?.Select(t =>
                 new ClientTrainingShortResonse
                 {
                     ID = t.Id,
@@ -135,10 +133,8 @@ namespace RassvetAPI.Controllers
             var trainings = (await _trainingsRepository.GetClientTrainingsAsync(id))
                 .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) < DateTime.Now);
 
-            if (trainings is null) return Ok();
-
             return Ok(trainings
-                .Select(t =>
+                ?.Select(t =>
                 new ClientTrainingShortResonse
                     {
                         ID = t.Id,
@@ -188,7 +184,7 @@ namespace RassvetAPI.Controllers
         /// </summary>
         /// <param name="sectionID"></param>
         /// <returns></returns>
-        [HttpGet("section-details")]
+        [HttpGet("section-details/{sectionID}")]
         public async Task<IActionResult> GetSectionDetailsForClientAsync(int sectionID)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
@@ -198,16 +194,14 @@ namespace RassvetAPI.Controllers
 
             var section = await _sectionsRepository.GetSectionAsync(sectionID);
 
-            if (section is null) return Ok();
-
-            return Ok(new ClientSectionDetailResponse
+            return Ok(section?.Let(s => new ClientSectionDetailResponse
             {
-                ID = section.Id,
-                SectionName = section.Name,
-                Description = section.Description,
-                Price = section.Price,
+                ID = s.Id,
+                SectionName = s.Name,
+                Description = s.Description,
+                Price = s.Price,
                 IsSubscribed = client.Subscriptions?.Any(s => s.SectionId == sectionID) ?? false
-            });
+            }));
         }
 
         /// <summary>
@@ -246,7 +240,7 @@ namespace RassvetAPI.Controllers
             }
             catch (Exception ex)
             {
-                return BadRequest(ex.Message);
+                return BadRequest(ex.Message.WrapArray());
             }
 
             return Ok();

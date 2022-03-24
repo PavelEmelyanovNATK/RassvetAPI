@@ -11,6 +11,6 @@ namespace RassvetAPI.Services.RefreshTokensRepository
         Task<RefreshToken> GetByTokenAsync(string token);
         Task RemoveAsync(RefreshToken token);
         Task RemoveAllAsync(int UserID);
-        Task UpdateTokenAsync(RefreshToken token, string newToken);
+        Task UpdateTokenAsync(int tokenID, string newToken);
     }
 }
