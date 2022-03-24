@@ -23,7 +23,7 @@ namespace RassvetAPI.Controllers
     /// </summary>
     [ApiController]
     [Authorize(Roles = "Client")]
-    [Route("me")]
+    [Route("client")]
     public class ClientController : ControllerBase
     {
         private readonly IClientsRepository _clientsRepository;
@@ -229,6 +229,12 @@ namespace RassvetAPI.Controllers
                     BarcodeString = $"4399{s.Id:00000000}"
                 }
                 ));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> MakeSubscriptionOrder()
+        {
+            return Ok();
         }
     }
 }

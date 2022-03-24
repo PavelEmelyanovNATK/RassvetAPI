@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 #nullable disable
@@ -16,13 +15,14 @@ namespace RassvetAPI.Models.RassvetDBModels
         public RassvetDBContext(DbContextOptions<RassvetDBContext> options)
             : base(options)
         {
-
         }
 
         public virtual DbSet<Bill> Bills { get; set; }
         public virtual DbSet<ClientInfo> ClientInfos { get; set; }
         public virtual DbSet<ClientToGroup> ClientToGroups { get; set; }
         public virtual DbSet<ManagerInfo> ManagerInfos { get; set; }
+        public virtual DbSet<Offer> Offers { get; set; }
+        public virtual DbSet<OfferType> OfferTypes { get; set; }
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<Section> Sections { get; set; }
@@ -35,10 +35,11 @@ namespace RassvetAPI.Models.RassvetDBModels
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder
-               .UseLazyLoadingProxies()
-               .UseSqlServer("Server=NHPC\\SQLEXPRESS;Database=RassvetDB;Trusted_Connection=True;User ID=sa;Password=sa");
-            
+            if (!optionsBuilder.IsConfigured)
+            {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=NHPC\\SQLEXPRESS;Database=RassvetDB;Trusted_Connection=True;User ID=sa;Password=sa");
+            }
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -150,6 +151,38 @@ namespace RassvetAPI.Models.RassvetDBModels
                     .HasForeignKey<ManagerInfo>(d => d.UserId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ManagerInfo_Users");
+            });
+
+            modelBuilder.Entity<Offer>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.OfferTypeId).HasColumnName("OfferTypeID");
+
+                entity.Property(e => e.SectionId).HasColumnName("SectionID");
+
+                entity.HasOne(d => d.OfferType)
+                    .WithMany(p => p.Offers)
+                    .HasForeignKey(d => d.OfferTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Offers_OfferTypes");
+
+                entity.HasOne(d => d.Section)
+                    .WithMany(p => p.Offers)
+                    .HasForeignKey(d => d.SectionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Offers_Sections");
+            });
+
+            modelBuilder.Entity<OfferType>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ID");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>
