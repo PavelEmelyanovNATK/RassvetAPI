@@ -15,48 +15,48 @@ namespace RassvetAPI.Services.ClientsRepository
             _dao = dao;
         }
 
-        public async Task AddClient(ClientInfo client)
+        public async Task AddClientAsync(ClientInfo client)
         {
             await _dao.ClientInfos.AddAsync(client);
             await _dao.SaveChangesAsync();
         }
 
-        public async Task ChangeBirthDate(int clientId, DateTime newBirthDate)
+        public async Task ChangeBirthDateAsync(int clientId, DateTime newBirthDate)
         {
-            (await GetClientByID(clientId)).BirthDate = newBirthDate;
+            (await GetClientByIDAsync(clientId)).BirthDate = newBirthDate;
             await _dao.SaveChangesAsync();
         }
 
-        public async Task ChangeName(int clientId, string newName)
+        public async Task ChangeNameAsync(int clientId, string newName)
         {
-            (await GetClientByID(clientId)).Name = newName;
+            (await GetClientByIDAsync(clientId)).Name = newName;
             await _dao.SaveChangesAsync();
         }
 
-        public async Task ChangePatronymic(int clientId, string newPatronymic)
+        public async Task ChangePatronymicAsync(int clientId, string newPatronymic)
         {
-            (await GetClientByID(clientId)).Patronymic = newPatronymic;
+            (await GetClientByIDAsync(clientId)).Patronymic = newPatronymic;
             await _dao.SaveChangesAsync();
         }
 
-        public async Task ChangeSurname(int clientId, string newSurname)
+        public async Task ChangeSurnameAsync(int clientId, string newSurname)
         {
-            (await GetClientByID(clientId)).Surname = newSurname;
+            (await GetClientByIDAsync(clientId)).Surname = newSurname;
             await _dao.SaveChangesAsync();
         }
 
-        public async Task<List<ClientInfo>> GetAllClients()
+        public async Task<List<ClientInfo>> GetAllClientsAsync()
             => await _dao.ClientInfos.ToListAsync();
 
-        public async Task<ClientInfo> GetClientByEmail(string email)
+        public async Task<ClientInfo> GetClientByEmailAsync(string email)
             => await _dao.ClientInfos.FirstOrDefaultAsync(client => client.User.Email == email);
 
-        public async Task<ClientInfo> GetClientByID(int ID)
+        public async Task<ClientInfo> GetClientByIDAsync(int ID)
             => await _dao.ClientInfos.FirstOrDefaultAsync(client => client.UserId == ID); 
 
-        public async Task Remove(int clientId)
+        public async Task RemoveAsync(int clientId)
         {
-            var curClient = await GetClientByID(clientId);
+            var curClient = await GetClientByIDAsync(clientId);
             if (curClient is null) return;
 
             _dao.ClientInfos.Remove(curClient);

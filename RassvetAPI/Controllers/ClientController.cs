@@ -46,10 +46,10 @@ namespace RassvetAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("info")]
-        public async Task<IActionResult> GetClientInfo()
+        public async Task<IActionResult> GetClientInfoAsync()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepository.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByIDAsync(id);
 
             if (client is null) return Unauthorized();
 
@@ -70,14 +70,14 @@ namespace RassvetAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("sections")]
-        public async Task<IActionResult> GetClientSections()
+        public async Task<IActionResult> GetClientSectionsAsync()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepository.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByIDAsync(id);
 
             if (client is null) return Unauthorized();
 
-            var sections = await _sectionsRepository.GetClientSections(id);
+            var sections = await _sectionsRepository.GetClientSectionsAsync(id);
 
             return Ok(sections.Select(s => 
             new SectionShortResponse
@@ -92,14 +92,14 @@ namespace RassvetAPI.Controllers
         /// </summary>
         /// <returns>Список элементов с короткой информацией о тренировке.</returns>
         [HttpGet("active-trainings")]
-        public async Task<IActionResult> GetClientActiveTrainings()
+        public async Task<IActionResult> GetClientActiveTrainingsAsync()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepository.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByIDAsync(id);
 
             if (client is null) return Unauthorized();
 
-            var trainings = (await _trainingsRepository.GetClientTrainings(id))
+            var trainings = (await _trainingsRepository.GetClientTrainingsAsync(id))
                 .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) >= DateTime.Now);
 
             if (trainings is null) return Ok();
@@ -125,14 +125,14 @@ namespace RassvetAPI.Controllers
         /// </summary>
         /// <returns>Список элементов с короткой информацией о тренировке.</returns>
         [HttpGet("past-trainings")]
-        public async Task<IActionResult> GetClientPastTrainings()
+        public async Task<IActionResult> GetClientPastTrainingsAsync()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepository.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByIDAsync(id);
 
             if (client is null) return Unauthorized();
 
-            var trainings = (await _trainingsRepository.GetClientTrainings(id))
+            var trainings = (await _trainingsRepository.GetClientTrainingsAsync(id))
                 .Where(t => t.StartDate.AddMinutes(t.DurationInMinutes) < DateTime.Now);
 
             if (trainings is null) return Ok();
@@ -159,14 +159,14 @@ namespace RassvetAPI.Controllers
         /// <param name="trainingID"></param>
         /// <returns></returns>
         [HttpGet("training-details/{trainingID}")]
-        public async Task<IActionResult> GetClientTrainingDetails(int trainingID)
+        public async Task<IActionResult> GetClientTrainingDetailsAsync(int trainingID)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepository.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByIDAsync(id);
 
             if (client is null) return Unauthorized();
 
-            var training = await _trainingsRepository.GetTraining(trainingID);
+            var training = await _trainingsRepository.GetTrainingAsync(trainingID);
             if (training is null) return BadRequest("Не удалось найти тренировку.");
 
             return Ok(new ClientTrainingDetailResponse
@@ -189,14 +189,14 @@ namespace RassvetAPI.Controllers
         /// <param name="sectionID"></param>
         /// <returns></returns>
         [HttpGet("section-details")]
-        public async Task<IActionResult> GetSectionDetailsForClient(int sectionID)
+        public async Task<IActionResult> GetSectionDetailsForClientAsync(int sectionID)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepository.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByIDAsync(id);
 
             if (client is null) return Unauthorized();
 
-            var section = await _sectionsRepository.GetSection(sectionID);
+            var section = await _sectionsRepository.GetSectionAsync(sectionID);
 
             if (section is null) return Ok();
 
@@ -215,10 +215,10 @@ namespace RassvetAPI.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet("subscriptions")]
-        public async Task<IActionResult> GetClientSubscriptions()
+        public async Task<IActionResult> GetClientSubscriptionsAsync()
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepository.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByIDAsync(id);
 
             if (client is null) return Unauthorized();
 
@@ -233,10 +233,10 @@ namespace RassvetAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> MakeSubscriptionOrder(SubscriptionOrderRequest subscriptionOrder)
+        public async Task<IActionResult> MakeSubscriptionOrderAsync(SubscriptionOrderRequest subscriptionOrder)
         {
             var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
-            var client = await _clientsRepository.GetClientByID(id);
+            var client = await _clientsRepository.GetClientByIDAsync(id);
 
             if (client is null) return Unauthorized();
 

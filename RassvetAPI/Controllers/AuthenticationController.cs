@@ -68,7 +68,7 @@ namespace RassvetAPI.Controllers
         {
             try
             {
-                await _registrationService.RegisterUser(clientRegModel);
+                await _registrationService.RegisterUserAsync(clientRegModel);
             }
             catch (RegistrationException ex)
             {
@@ -90,7 +90,7 @@ namespace RassvetAPI.Controllers
         {
             try
             {
-                await _registrationService.RegisterAdmin(adminRegModel);
+                await _registrationService.RegisterAdminAsync(adminRegModel);
             }
             catch (RegistrationException ex)
             {

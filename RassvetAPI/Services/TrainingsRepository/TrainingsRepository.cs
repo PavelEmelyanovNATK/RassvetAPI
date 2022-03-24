@@ -16,34 +16,34 @@ namespace RassvetAPI.Services.TrainingsRepository
             _dao = dao;
         }
 
-        public Task AddTraining(Training training)
+        public Task AddTrainingAsync(Training training)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<List<Training>> GetAllTrainings()
+        public async Task<List<Training>> GetAllTrainingsAsync()
             => await _dao.Trainings.ToListAsync(); 
 
-        public async Task<List<Training>> GetClientTrainings(int clientID)
+        public async Task<List<Training>> GetClientTrainingsAsync(int clientID)
             => await _dao.Trainings
                 .Where(t => t.Group.ClientToGroups
                 .Any(c => c.ClientId == clientID))
                 .ToListAsync();
 
-        public async Task<List<Training>> GetGroupTrainings(int groupID)
+        public async Task<List<Training>> GetGroupTrainingsAsync(int groupID)
             => await _dao.Trainings
                   .Where(t => t.GroupId == groupID)
                   .ToListAsync();
 
-        public async Task<List<Training>> GetSectionTrainings(int sectionID)
+        public async Task<List<Training>> GetSectionTrainingsAsync(int sectionID)
             => await _dao.Trainings
                   .Where(t => t.Group.SectionId == sectionID)
                   .ToListAsync();
 
-        public async Task<Training> GetTraining(int trainingID)
+        public async Task<Training> GetTrainingAsync(int trainingID)
             => await _dao.Trainings.FindAsync(trainingID); 
 
-        public Task RemoveTraining(Training training)
+        public Task RemoveTrainingAsync(Training training)
         {
             throw new NotImplementedException();
         }

@@ -27,7 +27,7 @@ namespace RassvetAPI.Controllers
         [HttpGet("sections")]
         public async Task<IActionResult> GetSections()
         {
-            var sections = await _sectionsRepository.GetAllSections();
+            var sections = await _sectionsRepository.GetAllSectionsAsync();
 
             return Ok(sections?.Select(s =>
                 new SectionShortResponse
@@ -46,7 +46,7 @@ namespace RassvetAPI.Controllers
         [HttpGet("sectionDetails")]
         public async Task<IActionResult> GetSectionDetails(int sectionId)
         {
-            var section = await _sectionsRepository.GetSection(sectionId);
+            var section = await _sectionsRepository.GetSectionAsync(sectionId);
 
             return Ok(section?
                 .Let(s => new SectionDetailResponse

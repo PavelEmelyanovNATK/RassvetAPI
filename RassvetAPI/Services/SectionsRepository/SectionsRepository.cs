@@ -15,12 +15,12 @@ namespace RassvetAPI.Services.SectionsRepository
             _dao = dao;
         }
 
-        public async Task<List<Section>> GetAllSections()
+        public async Task<List<Section>> GetAllSectionsAsync()
         {
             return await _dao.Sections.ToListAsync(); 
         }
 
-        public async Task<List<Section>> GetClientSections(int clientID)
+        public async Task<List<Section>> GetClientSectionsAsync(int clientID)
         {
             return await _dao.Sections
                 .Where(s => s.Subscriptions
@@ -28,7 +28,7 @@ namespace RassvetAPI.Services.SectionsRepository
                 .ToListAsync();
         }
 
-        public async Task<Section> GetSection(int ID)
+        public async Task<Section> GetSectionAsync(int ID)
         {
             return await _dao.Sections.FindAsync(ID); 
         }

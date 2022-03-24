@@ -7,15 +7,15 @@ namespace RassvetAPI.Services.ClientsRepository
 {
     public interface IClientsRepository
     {
-        Task AddClient(ClientInfo client);
-        Task<ClientInfo> GetClientByID(int ID);
-        Task<ClientInfo> GetClientByEmail(string email);
-        Task Remove(int clientId);
-        Task<List<ClientInfo>> GetAllClients();
+        Task AddClientAsync(ClientInfo client);
+        Task<ClientInfo> GetClientByIDAsync(int ID);
+        Task<ClientInfo> GetClientByEmailAsync(string email);
+        Task RemoveAsync(int clientId);
+        Task<List<ClientInfo>> GetAllClientsAsync();
 
-        Task ChangeName(int clientId, string newName);
-        Task ChangeSurname(int clientId, string newSurname);
-        Task ChangePatronymic(int clientId, string newPatronymic);
-        Task ChangeBirthDate(int clientId, DateTime newBirthDate);
+        Task ChangeNameAsync(int clientId, string newName);
+        Task ChangeSurnameAsync(int clientId, string newSurname);
+        Task ChangePatronymicAsync(int clientId, string newPatronymic);
+        Task ChangeBirthDateAsync(int clientId, DateTime newBirthDate);
     }
 }

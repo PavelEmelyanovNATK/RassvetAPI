@@ -6,8 +6,8 @@ namespace RassvetAPI.Services.SectionsRepository
 {
     public interface ISectionsRepository
     {
-        Task<Section> GetSection(int ID);
-        Task<List<Section>> GetAllSections();
-        Task<List<Section>> GetClientSections(int clientID);
+        Task<Section> GetSectionAsync(int ID);
+        Task<List<Section>> GetAllSectionsAsync();
+        Task<List<Section>> GetClientSectionsAsync(int clientID);
     }
 }

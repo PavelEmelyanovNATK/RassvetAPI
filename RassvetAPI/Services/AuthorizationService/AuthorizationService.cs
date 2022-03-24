@@ -78,14 +78,14 @@ namespace RassvetAPI.Services.AuthorizationService
                 await _dao.SaveChangesAsync();
             }
 
-            await _refreshTokensRepository.Add(refreshTokenObj);
+            await _refreshTokensRepository.AddAsync(refreshTokenObj);
 
             return authorizeResponse;
         }
 
         public async Task<TokensResponse> RefreshTokensAsync(string oldRefreshToken)
         {
-            var refreshToken = await _refreshTokensRepository.GetByToken(oldRefreshToken);
+            var refreshToken = await _refreshTokensRepository.GetByTokenAsync(oldRefreshToken);
             if (refreshToken is null) 
                 throw new UserAlreadyLogOutedException("Токен обновления не найден.");
 
@@ -95,7 +95,7 @@ namespace RassvetAPI.Services.AuthorizationService
 
             if (!_refreshTokenValidator.Validate(oldRefreshToken))
             {
-                await _refreshTokensRepository.Remove(refreshToken);
+                await _refreshTokensRepository.RemoveAsync(refreshToken);
                 throw new InvalidRefreshTokenException("Неверный токен обновления.");
             }
 
@@ -108,7 +108,7 @@ namespace RassvetAPI.Services.AuthorizationService
             }
 
             var newToken = _refreshTokenGenerator.GenerateToken(user);
-            await _refreshTokensRepository.UpdateToken(refreshToken, newToken);
+            await _refreshTokensRepository.UpdateTokenAsync(refreshToken, newToken);
 
             var tokensResponse = new TokensResponse
             {
@@ -121,10 +121,10 @@ namespace RassvetAPI.Services.AuthorizationService
 
         public async Task LogoutSessionAsync(string accessToken)
         {
-            var token = await _refreshTokensRepository.GetByToken(accessToken);
+            var token = await _refreshTokensRepository.GetByTokenAsync(accessToken);
             if (token is null) return;
 
-            await _refreshTokensRepository.Remove(token);
+            await _refreshTokensRepository.RemoveAsync(token);
         }
 
         public async Task LogoutUserAsync(int UserID)
@@ -132,7 +132,7 @@ namespace RassvetAPI.Services.AuthorizationService
             var user = await _dao.Users.FindAsync(UserID);
             if (user is null) return;
 
-            await _refreshTokensRepository.RemoveAll(UserID);
+            await _refreshTokensRepository.RemoveAllAsync(UserID);
         }
     }
 

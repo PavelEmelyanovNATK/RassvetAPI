@@ -6,18 +6,18 @@ namespace RassvetAPI.Services.TrainingsRepository
 {
     public interface ITrainingsRepository
     {
-        Task<Training> GetTraining(int trainingID);
+        Task<Training> GetTrainingAsync(int trainingID);
 
-        Task<List<Training>> GetAllTrainings();
+        Task<List<Training>> GetAllTrainingsAsync();
 
-        Task<List<Training>> GetSectionTrainings(int sectionID);
+        Task<List<Training>> GetSectionTrainingsAsync(int sectionID);
 
-        Task<List<Training>> GetGroupTrainings(int groupID);
+        Task<List<Training>> GetGroupTrainingsAsync(int groupID);
 
-        Task<List<Training>> GetClientTrainings(int clientID);
+        Task<List<Training>> GetClientTrainingsAsync(int clientID);
 
-        Task AddTraining(Training training);
+        Task AddTrainingAsync(Training training);
 
-        Task RemoveTraining(Training training);
+        Task RemoveTrainingAsync(Training training);
     }
 }

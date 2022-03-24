@@ -6,12 +6,12 @@ namespace RassvetAPI.Services.GroupsRepository
 {
     public interface IGroupsRepository
     {
-        Task<SectionGroup> GetGroup(int groupID);
+        Task<SectionGroup> GetGroupAsync(int groupID);
 
-        Task<List<SectionGroup>> GetAllGroups();
+        Task<List<SectionGroup>> GetAllGroupsAsync();
 
-        Task AddGroup(SectionGroup group);
+        Task AddGroupAsync(SectionGroup group);
 
-        Task RemoveGroup(SectionGroup group);
+        Task RemoveGroupAsync(SectionGroup group);
     }
 }

@@ -14,18 +14,18 @@ namespace RassvetAPI.Services.GroupsRepository
             _dao = dao;
         }
 
-        public Task AddGroup(SectionGroup group)
+        public Task AddGroupAsync(SectionGroup group)
         {
             throw new System.NotImplementedException();
         }
 
-        public async Task<List<SectionGroup>> GetAllGroups()
+        public async Task<List<SectionGroup>> GetAllGroupsAsync()
             => await _dao.SectionGroups.ToListAsync();
 
-        public async Task<SectionGroup> GetGroup(int groupID)
+        public async Task<SectionGroup> GetGroupAsync(int groupID)
             => await _dao.SectionGroups.FindAsync(groupID);
 
-        public Task RemoveGroup(SectionGroup group)
+        public Task RemoveGroupAsync(SectionGroup group)
         {
             throw new System.NotImplementedException();
         }

@@ -21,7 +21,7 @@ namespace RassvetAPI.Services.RegistrationService
             _dao = dao;
         }
 
-        public async Task RegisterUser(ClientRegisterModel clientRegisterModel)
+        public async Task RegisterUserAsync(ClientRegisterModel clientRegisterModel)
         {
             var userInfo = new User
             {
@@ -50,7 +50,7 @@ namespace RassvetAPI.Services.RegistrationService
             }
         }
 
-        public async Task RegisterAdmin(AdminRegisterModel clientRegisterModel)
+        public async Task RegisterAdminAsync(AdminRegisterModel clientRegisterModel)
         {
             var user = new User
             {

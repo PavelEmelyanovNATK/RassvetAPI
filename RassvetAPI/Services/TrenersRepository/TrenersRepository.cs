@@ -14,18 +14,18 @@ namespace RassvetAPI.Services.TrenersRepository
             _dao = dao;
         }
 
-        public Task AddTrener(TrenerInfo trener)
+        public Task AddTrenerAsync(TrenerInfo trener)
         {
             throw new System.NotImplementedException();
         }
 
-        public async Task<List<TrenerInfo>> GetAllTreners()
+        public async Task<List<TrenerInfo>> GetAllTrenersAsync()
             => await _dao.TrenerInfos.ToListAsync();
 
-        public async Task<TrenerInfo> GetTrener(int trenerID)
+        public async Task<TrenerInfo> GetTrenerAsync(int trenerID)
             => await _dao.TrenerInfos.FindAsync(trenerID);
 
-        public Task RemoveTrener(TrenerInfo trener)
+        public Task RemoveTrenerAsync(TrenerInfo trener)
         {
             throw new System.NotImplementedException();
         }

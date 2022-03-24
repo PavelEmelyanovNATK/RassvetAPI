@@ -6,12 +6,12 @@ namespace RassvetAPI.Services.TrenersRepository
 {
     public interface ITrenersRepository
     {
-        Task<TrenerInfo> GetTrener(int trenerID);
+        Task<TrenerInfo> GetTrenerAsync(int trenerID);
 
-        Task<List<TrenerInfo>> GetAllTreners();
+        Task<List<TrenerInfo>> GetAllTrenersAsync();
 
-        Task AddTrener(TrenerInfo trener);
+        Task AddTrenerAsync(TrenerInfo trener);
 
-        Task RemoveTrener(TrenerInfo trener);
+        Task RemoveTrenerAsync(TrenerInfo trener);
     }
 }
