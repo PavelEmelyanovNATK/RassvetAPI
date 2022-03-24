@@ -11,7 +11,6 @@ namespace RassvetAPI.Models.RassvetDBModels
         {
             Offers = new HashSet<Offer>();
             SectionGroups = new HashSet<SectionGroup>();
-            SubscriptionOrders = new HashSet<SubscriptionOrder>();
             Subscriptions = new HashSet<Subscription>();
         }
 
@@ -22,7 +21,6 @@ namespace RassvetAPI.Models.RassvetDBModels
 
         public virtual ICollection<Offer> Offers { get; set; }
         public virtual ICollection<SectionGroup> SectionGroups { get; set; }
-        public virtual ICollection<SubscriptionOrder> SubscriptionOrders { get; set; }
         public virtual ICollection<Subscription> Subscriptions { get; set; }
     }
 }

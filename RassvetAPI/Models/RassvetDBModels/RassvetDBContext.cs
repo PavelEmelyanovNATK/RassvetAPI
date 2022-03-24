@@ -289,7 +289,7 @@ namespace RassvetAPI.Models.RassvetDBModels
                     .HasColumnType("datetime")
                     .HasDefaultValueSql("(getdate())");
 
-                entity.Property(e => e.SectionId).HasColumnName("SectionID");
+                entity.Property(e => e.OfferId).HasColumnName("OfferID");
 
                 entity.HasOne(d => d.Client)
                     .WithMany(p => p.SubscriptionOrders)
@@ -297,11 +297,11 @@ namespace RassvetAPI.Models.RassvetDBModels
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_SubscriptionOrder_ClientInfo");
 
-                entity.HasOne(d => d.Section)
+                entity.HasOne(d => d.Offer)
                     .WithMany(p => p.SubscriptionOrders)
-                    .HasForeignKey(d => d.SectionId)
+                    .HasForeignKey(d => d.OfferId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_SubscriptionOrder_Sections");
+                    .HasConstraintName("FK_SubscriptionOrder_Offers");
             });
 
             modelBuilder.Entity<Training>(entity =>
@@ -325,7 +325,7 @@ namespace RassvetAPI.Models.RassvetDBModels
                     .HasMaxLength(150);
 
                 entity.HasOne(d => d.Group)
-                    .WithMany(p => p.Training)
+                    .WithMany(p => p.Trainings)
                     .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_Training_Group");

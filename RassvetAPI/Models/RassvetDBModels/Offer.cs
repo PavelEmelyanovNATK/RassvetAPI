@@ -7,6 +7,11 @@ namespace RassvetAPI.Models.RassvetDBModels
 {
     public partial class Offer
     {
+        public Offer()
+        {
+            SubscriptionOrders = new HashSet<SubscriptionOrder>();
+        }
+
         public int Id { get; set; }
         public int SectionId { get; set; }
         public int OfferTypeId { get; set; }
@@ -14,5 +19,6 @@ namespace RassvetAPI.Models.RassvetDBModels
 
         public virtual OfferType OfferType { get; set; }
         public virtual Section Section { get; set; }
+        public virtual ICollection<SubscriptionOrder> SubscriptionOrders { get; set; }
     }
 }

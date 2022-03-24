@@ -13,13 +13,13 @@ namespace RassvetAPI.Models.RassvetDBModels
         }
 
         public int Id { get; set; }
-        public int SectionId { get; set; }
+        public int OfferId { get; set; }
         public int ClientId { get; set; }
         public DateTime Date { get; set; }
         public bool Confirmed { get; set; }
 
         public virtual ClientInfo Client { get; set; }
-        public virtual Section Section { get; set; }
+        public virtual Offer Offer { get; set; }
         public virtual ICollection<Bill> Bills { get; set; }
     }
 }
