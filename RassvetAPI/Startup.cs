@@ -55,8 +55,11 @@ namespace RassvetAPI
             services.AddSectionsRepository();
             services.AddTrenersRepository();
             services.AddGroupsRepository();
+
             services.AddRegistrationService();
             services.AddAuthService();
+
+            services.AddOrderHandler();
 
             services
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

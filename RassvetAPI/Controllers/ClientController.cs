@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using RassvetAPI.Models;
-using RassvetAPI.Models.RassvetDBModels;
+using RassvetAPI.Models.RequestModels;
 using RassvetAPI.Models.ResponseModels;
 using RassvetAPI.Services.ClientsRepository;
-using RassvetAPI.Services.GroupsRepository;
+using RassvetAPI.Services.OrderHandler;
 using RassvetAPI.Services.SectionsRepository;
 using RassvetAPI.Services.TrainingsRepository;
-using RassvetAPI.Services.TrenersRepository;
 using RassvetAPI.Util.UsefulExtensions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -29,15 +26,19 @@ namespace RassvetAPI.Controllers
         private readonly IClientsRepository _clientsRepository;
         private readonly ISectionsRepository _sectionsRepository;
         private readonly ITrainingsRepository _trainingsRepository;
+        private readonly IOrderHandler _orderHandler;
 
         public ClientController(
             IClientsRepository clientsRepo,
             ISectionsRepository sectionsRepository,
-            ITrainingsRepository trainingsRepository)
+            ITrainingsRepository trainingsRepository, 
+            IOrderHandler orderHandler
+            )
         {
             _clientsRepository = clientsRepo;
             _sectionsRepository = sectionsRepository;
             _trainingsRepository = trainingsRepository;
+            _orderHandler = orderHandler;
         }
 
         /// <summary>
@@ -232,8 +233,22 @@ namespace RassvetAPI.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> MakeSubscriptionOrder()
+        public async Task<IActionResult> MakeSubscriptionOrder(SubscriptionOrderRequest subscriptionOrder)
         {
+            var id = Convert.ToInt32(HttpContext.User.FindFirst("ID").Value);
+            var client = await _clientsRepository.GetClientByID(id);
+
+            if (client is null) return Unauthorized();
+
+            try
+            {
+                await _orderHandler.MakeOrderAsync(subscriptionOrder.OfferID, client.UserId);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
             return Ok();
         }
     }

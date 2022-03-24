@@ -1,7 +1,10 @@
-﻿namespace RassvetAPI.Models.RequestModels
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace RassvetAPI.Models.RequestModels
 {
     public class SubscriptionOrderRequest
     {
-        public int Section { get; set; }
+        [Required]
+        public int OfferID { get; set; }
     }
 }
