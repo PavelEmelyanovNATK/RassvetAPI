@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+using RassvetAPI.Models.ResponseModels;
+using RassvetAPI.Util;
 using RassvetAPI.Util.UsefulExtensions;
 using System.Linq;
 
@@ -20,7 +22,7 @@ namespace RassvetAPI.Controllers
                     .SelectMany(x => x.Value.Errors)
                     .Select(x => x.ErrorMessage);
 
-                context.Result = new BadRequestObjectResult(errors);
+                context.Result = new OkObjectResult(ResponseBuilder.Create(code: 400, errors: errors.GroupErrors()));
             }
             base.OnActionExecuting(context);
         }

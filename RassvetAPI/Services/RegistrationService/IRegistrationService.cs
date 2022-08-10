@@ -11,7 +11,7 @@ namespace RassvetAPI.Services.RegistrationService
         /// <param name="userRegisterModel"></param>
         /// <returns></returns>
         /// <exception cref="EmailAlreadyTakenException"></exception>
-        Task RegisterUserAsync(ClientRegisterModel userRegisterModel);
+        Task RegisterClientAsync(ClientRegisterModel userRegisterModel);
 
         /// <summary>
         /// Регистрирует администратора в системе.
@@ -20,5 +20,13 @@ namespace RassvetAPI.Services.RegistrationService
         /// <returns></returns>
         /// <exception cref="EmailAlreadyTakenException"></exception>
         Task RegisterAdminAsync(AdminRegisterModel clientRegisterModel);
+
+        /// <summary>
+        /// Регистрирует менеджера в системе.
+        /// </summary>
+        /// <param name="managerRegisterModel"></param>
+        /// <returns></returns>
+        /// <exception cref="EmailAlreadyTakenException"></exception>
+        Task RegisterManagerAsync(AdminRegisterModel managerRegisterModel);
     }
 }

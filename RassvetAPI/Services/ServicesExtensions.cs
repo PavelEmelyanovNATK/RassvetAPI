@@ -10,6 +10,7 @@ using RassvetAPI.Services.SectionsRepository;
 using RassvetAPI.Services.TrenersRepository;
 using RassvetAPI.Services.GroupsRepository;
 using RassvetAPI.Services.OrderHandler;
+using RassvetAPI.Services.UsersRepository;
 
 namespace RassvetAPI.Services
 {
@@ -35,6 +36,9 @@ namespace RassvetAPI.Services
 
         public static IServiceCollection AddRefreshTokensRepository(this IServiceCollection serviceCollection)
             => serviceCollection.AddScoped<IRefreshTokensRepository, RefreshTokensRepository.RefreshTokensRepository>();
+
+        public static IServiceCollection AddUsersRepository(this IServiceCollection serviceCollection)
+            => serviceCollection.AddScoped<IUsersRepository, UsersRepository.UsersRepository>();
 
         public static IServiceCollection AddClientsRepository(this IServiceCollection serviceCollection)
             => serviceCollection.AddScoped<IClientsRepository, ClientsRepository.ClientsRepository>();

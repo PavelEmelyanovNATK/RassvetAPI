@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using RassvetAPI.Models.RequestModels;
 using RassvetAPI.Util.UsefulExtensions;
+using RassvetAPI.Util;
+using RassvetAPI.Models.ResponseModels;
 
 namespace RassvetAPI.Controllers
 {
@@ -27,17 +29,14 @@ namespace RassvetAPI.Controllers
     {
         private readonly IAuthorizationService _authService;
         private readonly IRegistrationService _registrationService;
-        private readonly IRefreshTokensRepository _refreshTokenRepository;
 
         public AuthenticationController(
             IAuthorizationService loginingService, 
-            IRegistrationService registrationService, 
-            IRefreshTokensRepository refreahTokenRepository
+            IRegistrationService registrationService
             )
         {
             _authService = loginingService;
             _registrationService = registrationService;
-            _refreshTokenRepository = refreahTokenRepository;
         }
 
         /// <summary>
@@ -51,11 +50,12 @@ namespace RassvetAPI.Controllers
         {
             try
             {
-                return Ok(await _authService.LogInAsync(logInModel));
+                var tokensResponse = await _authService.LogInAsync(logInModel);
+                return Ok(ResponseBuilder.Create(code: 200, data: tokensResponse));
             }
             catch (AuthException ex)
             {
-                return BadRequest(ex.Message.WrapArray());
+                return Ok(ResponseBuilder.Create(code: 400, errors: ex.Message));
             }
         }
 
@@ -65,18 +65,18 @@ namespace RassvetAPI.Controllers
         /// <param name="clientRegModel"></param>
         /// <returns></returns>
         [HttpPost("register/client")]
-        public async Task<IActionResult> RegisterUserAsync([FromBody] ClientRegisterModel clientRegModel)
+        public async Task<IActionResult> RegisterClientAsync([FromBody] ClientRegisterModel clientRegModel)
         {
             try
             {
-                await _registrationService.RegisterUserAsync(clientRegModel);
+                await _registrationService.RegisterClientAsync(clientRegModel);
             }
             catch (RegistrationException ex)
             {
-                return BadRequest(ex.Message.WrapArray());
+                return Ok(ResponseBuilder.Create(code: 400, errors: ex.Message));
             }
 
-            return Ok();
+            return Ok(ResponseBuilder.Create(code: 200));
         }
 
         /// <summary>
@@ -101,6 +101,22 @@ namespace RassvetAPI.Controllers
             return Ok();
         }
 
+        [Authorize(Roles = "Admin, Manager")]
+        [HttpPost("register/manager")]
+        public async Task<IActionResult> RegisterManagerAsync([FromBody] AdminRegisterModel managerRegisterModel)
+        {
+            try
+            {
+                await _registrationService.RegisterManagerAsync(managerRegisterModel);
+            }
+            catch (RegistrationException ex)
+            {
+                return BadRequest(ex.Message.WrapArray());
+            }
+
+            return Ok();
+        }
+
         /// <summary>
         /// Возвращает новые токен доступа и токен обновления.
         /// </summary>
@@ -111,11 +127,12 @@ namespace RassvetAPI.Controllers
         {
             try
             {
-                return Ok(await _authService.RefreshTokensAsync(refreshRequest.RefreshToken));
+                var tokens = await _authService.RefreshTokensAsync(refreshRequest.RefreshToken);
+                return Ok(ResponseBuilder.Create(code: 200, data: tokens));
             }
             catch (AuthException ex)
             {
-                return BadRequest(ex.Message.WrapArray());
+                return Ok(ResponseBuilder.Create(code: 400, errors: ex.Message));
             }
         }
 
@@ -129,7 +146,7 @@ namespace RassvetAPI.Controllers
         {
             await _authService.LogoutSessionAsync(refreshRequest.RefreshToken);
 
-            return Ok();
+            return Ok(ResponseBuilder.Create(code: 200));
         }
 
         /// <summary>

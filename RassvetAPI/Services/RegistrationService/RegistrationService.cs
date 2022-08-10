@@ -1,7 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using RassvetAPI.Models.RassvetDBModels;
 using RassvetAPI.Models.RequestModels;
+using RassvetAPI.Services.ClientsRepository;
 using RassvetAPI.Services.PasswordHasher;
+using RassvetAPI.Services.UsersRepository;
 using System;
 using System.Threading.Tasks;
 
@@ -9,19 +11,21 @@ namespace RassvetAPI.Services.RegistrationService
 {
     public class RegistrationService : IRegistrationService
     {
-        private readonly RassvetDBContext _dao;
         private readonly IPasswordHasher _hasher;
+        private readonly IUsersRepository _usersRepository;
+        private readonly IClientsRepository _clientsRepository;
 
         public RegistrationService(
-            IPasswordHasher hasher, 
-            RassvetDBContext dao
-            )
+            IPasswordHasher hasher,
+            IUsersRepository usersRepository,
+            IClientsRepository clientsRepository)
         {
             _hasher = hasher;
-            _dao = dao;
+            _usersRepository = usersRepository;
+            _clientsRepository = clientsRepository;
         }
 
-        public async Task RegisterUserAsync(ClientRegisterModel clientRegisterModel)
+        public async Task RegisterClientAsync(ClientRegisterModel clientRegisterModel)
         {
             var userInfo = new User
             {
@@ -41,8 +45,7 @@ namespace RassvetAPI.Services.RegistrationService
 
             try
             {
-                await _dao.ClientInfos.AddAsync(client);
-                await _dao.SaveChangesAsync();
+                await _clientsRepository.AddClientAsync(client);
             }
             catch (DbUpdateException)
             {
@@ -61,8 +64,26 @@ namespace RassvetAPI.Services.RegistrationService
 
             try
             {
-                await _dao.Users.AddAsync(user);
-                await _dao.SaveChangesAsync();
+                await _usersRepository.AddUserAsync(user);
+            }
+            catch (DbUpdateException)
+            {
+                throw new EmailAlreadyTakenException("Пользователь с таким Email уже существует.");
+            }
+        }
+
+        public async Task RegisterManagerAsync(AdminRegisterModel managerRegisterModel)
+        {
+            var user = new User
+            {
+                Email = managerRegisterModel.Email,
+                Password = _hasher.HashPassword(managerRegisterModel.Password),
+                RoleId = 3
+            };
+
+            try
+            {
+                await _usersRepository.AddUserAsync(user);
             }
             catch (DbUpdateException)
             {

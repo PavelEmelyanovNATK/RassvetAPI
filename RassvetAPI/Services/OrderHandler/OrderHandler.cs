@@ -31,6 +31,27 @@ namespace RassvetAPI.Services.OrderHandler
 
             await _dao.SaveChangesAsync();
         }
+
+        public async Task ProcessOrderAsync(int orderId, int managerId)
+        {
+            var order = await _dao.SubscriptionOrders.FindAsync(orderId);
+
+            if (order is null)
+                throw new OrderNotFoundException("Такого заказа не существует.");
+
+            order.Confirmed = true;
+
+            //var bill = new Bill
+            //{
+            //    ManagerId = managerId,
+            //    Price = order.Offer.Price,
+            //    OrderId = orderId
+            //};
+
+            //_dao.Bills.Add(bill);
+
+            await _dao.SaveChangesAsync();
+        }
     }
 
     public abstract class OrderException : Exception
@@ -45,5 +66,12 @@ namespace RassvetAPI.Services.OrderHandler
         public OfferNotFoundException() : base() { }
 
         public OfferNotFoundException(string message) : base(message) { }
+    }
+
+    public class OrderNotFoundException : OrderException
+    {
+        public OrderNotFoundException() : base() { }
+
+        public OrderNotFoundException(string message) : base(message) { }
     }
 }

@@ -11,7 +11,7 @@ namespace RassvetAPI.Models.ResponseModels
 
         public string Title { get; set; }
 
-        public string SectionName { get; set; }
+        public int SectionId { get; set; }
 
         public string GroupName { get; set; }
 
@@ -19,6 +19,6 @@ namespace RassvetAPI.Models.ResponseModels
 
         public int DurationInMinutes { get; set; }
 
-        public string TrenerFullName { get; set; }
+        public string TrainerFullName { get; set; }
     }
 }

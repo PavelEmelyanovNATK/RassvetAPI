@@ -13,5 +13,14 @@ namespace RassvetAPI.Services.OrderHandler
         /// <returns></returns>
         /// <exception cref="OfferNotFoundException"></exception>
         Task MakeOrderAsync(int offerId, int clientId);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <param name="managerId"></param>
+        /// <returns></returns>
+        /// <exception cref="OrderNotFoundException"></exception>
+        Task ProcessOrderAsync(int orderId, int managerId);
     }
 }

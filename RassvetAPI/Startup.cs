@@ -33,6 +33,7 @@ namespace RassvetAPI
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            services.AddControllersWithViews();
 
             services.AddDbContext<RassvetDBContext>(
                 options => options
@@ -50,6 +51,7 @@ namespace RassvetAPI
             services.AddRefreshTokenGeneratorService();
             services.AddRefreshTokensRepository();
             services.AddRefreshTokenValidator();
+            services.AddUsersRepository();
             services.AddClientsRepository();
             services.AddClientTrainingsRepository();
             services.AddSectionsRepository();

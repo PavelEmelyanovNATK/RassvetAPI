@@ -16,6 +16,12 @@ namespace RassvetAPI.Services.TrainingsRepository
 
         Task<List<Training>> GetClientTrainingsAsync(int clientID);
 
+        Task<List<Training>> GetClientActiveTrainingsAsync(int clientID);
+        Task<List<Training>> GetClientPastTrainingsAsync(int clientID, int pagesCount);
+
+        Task<List<Training>> GetClientActiveTrainingsBySectionAsync(int clientId, int sectionId);
+        Task<List<Training>> GetClientPastTrainingsBySectionAsync(int clientId, int sectionId, int pagesCount);
+
         Task AddTrainingAsync(Training training);
 
         Task RemoveTrainingAsync(Training training);

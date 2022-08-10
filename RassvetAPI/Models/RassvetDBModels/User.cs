@@ -10,6 +10,7 @@ namespace RassvetAPI.Models.RassvetDBModels
         public User()
         {
             RefreshTokens = new HashSet<RefreshToken>();
+            Bills = new HashSet<Bill>();
         }
 
         public int Id { get; set; }
@@ -22,5 +23,7 @@ namespace RassvetAPI.Models.RassvetDBModels
         public virtual ManagerInfo ManagerInfo { get; set; }
         public virtual TrenerInfo TrenerInfo { get; set; }
         public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
+
+        public virtual ICollection<Bill> Bills { get; set; }
     }
 }
