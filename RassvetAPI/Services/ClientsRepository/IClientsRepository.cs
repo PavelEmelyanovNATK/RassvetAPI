@@ -1,19 +1,21 @@
-﻿using RassvetAPI.Models;
-using RassvetAPI.Models.RassvetDBModels;
+﻿using RassvetAPI.Models.RassvetDBModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RassvetAPI.Services.ClientsRepository
 {
     public interface IClientsRepository
     {
-        Task Add(ClientInfo client);
-        Task<ClientInfo> GetByID(int ID);
-        Task<ClientInfo> GetByEmail(string email);
-        Task Edit(ClientInfo client, EditClientModel newClientInfo);
-        Task Remove(ClientInfo client);
-        Task<ICollection<ClientInfo>> GetAllClients();
+        Task AddClientAsync(ClientInfo client);
+        Task<ClientInfo> GetClientByIDAsync(int ID);
+        Task<ClientInfo> GetClientByEmailAsync(string email);
+        Task RemoveAsync(int clientId);
+        Task<List<ClientInfo>> GetAllClientsAsync();
+
+        Task ChangeNameAsync(int clientId, string newName);
+        Task ChangeSurnameAsync(int clientId, string newSurname);
+        Task ChangePatronymicAsync(int clientId, string newPatronymic);
+        Task ChangeBirthDateAsync(int clientId, DateTime newBirthDate);
     }
 }

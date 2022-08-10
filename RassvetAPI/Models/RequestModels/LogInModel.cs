@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace RassvetAPI.Models
+namespace RassvetAPI.Models.RequestModels
 {
     public class LogInModel
     {

@@ -9,8 +9,9 @@ namespace RassvetAPI.Models.RassvetDBModels
     {
         public Section()
         {
-            ClientToSections = new HashSet<ClientToSection>();
-            Trainings = new HashSet<Training>();
+            Offers = new HashSet<Offer>();
+            SectionGroups = new HashSet<SectionGroup>();
+            Subscriptions = new HashSet<Subscription>();
         }
 
         public int Id { get; set; }
@@ -18,7 +19,8 @@ namespace RassvetAPI.Models.RassvetDBModels
         public string Description { get; set; }
         public int Price { get; set; }
 
-        public virtual ICollection<ClientToSection> ClientToSections { get; set; }
-        public virtual ICollection<Training> Trainings { get; set; }
+        public virtual ICollection<Offer> Offers { get; set; }
+        public virtual ICollection<SectionGroup> SectionGroups { get; set; }
+        public virtual ICollection<Subscription> Subscriptions { get; set; }
     }
 }

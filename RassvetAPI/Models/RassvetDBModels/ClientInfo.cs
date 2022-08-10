@@ -9,8 +9,9 @@ namespace RassvetAPI.Models.RassvetDBModels
     {
         public ClientInfo()
         {
-            ClientToSections = new HashSet<ClientToSection>();
-            ClientToTrainings = new HashSet<ClientToTraining>();
+            ClientToGroups = new HashSet<ClientToGroup>();
+            SubscriptionOrders = new HashSet<SubscriptionOrder>();
+            Subscriptions = new HashSet<Subscription>();
         }
 
         public int UserId { get; set; }
@@ -21,7 +22,8 @@ namespace RassvetAPI.Models.RassvetDBModels
         public DateTime? RegistrationDate { get; set; }
 
         public virtual User User { get; set; }
-        public virtual ICollection<ClientToSection> ClientToSections { get; set; }
-        public virtual ICollection<ClientToTraining> ClientToTrainings { get; set; }
+        public virtual ICollection<ClientToGroup> ClientToGroups { get; set; }
+        public virtual ICollection<SubscriptionOrder> SubscriptionOrders { get; set; }
+        public virtual ICollection<Subscription> Subscriptions { get; set; }
     }
 }

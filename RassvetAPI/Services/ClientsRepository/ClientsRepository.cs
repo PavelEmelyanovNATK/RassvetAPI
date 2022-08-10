@@ -1,9 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using RassvetAPI.Models;
 using RassvetAPI.Models.RassvetDBModels;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace RassvetAPI.Services.ClientsRepository
@@ -17,46 +15,53 @@ namespace RassvetAPI.Services.ClientsRepository
             _dao = dao;
         }
 
-        public async Task Add(ClientInfo client)
+        public async Task AddClientAsync(ClientInfo client)
         {
             await _dao.ClientInfos.AddAsync(client);
             await _dao.SaveChangesAsync();
         }
 
-        public async Task Edit(ClientInfo client, EditClientModel newClientInfo)
+        public async Task ChangeBirthDateAsync(int clientId, DateTime newBirthDate)
         {
-            var curClient = await _dao.ClientInfos.FindAsync(client.UserId);
-            if (curClient is null) return;
-
-            curClient.Surname = newClientInfo.Surname;
-            curClient.Name = newClientInfo.Name;
-            curClient.Patronymic = newClientInfo.Patronymic;
-            curClient.BirthDate = newClientInfo.BirthDate;
-
+            (await GetClientByIDAsync(clientId)).BirthDate = newBirthDate;
             await _dao.SaveChangesAsync();
         }
 
-        public async Task<ICollection<ClientInfo>> GetAllClients()
+        public async Task ChangeNameAsync(int clientId, string newName)
         {
-            return await _dao.ClientInfos.ToListAsync();
+            (await GetClientByIDAsync(clientId)).Name = newName;
+            await _dao.SaveChangesAsync();
         }
 
-        public async Task<ClientInfo> GetByEmail(string email)
+        public async Task ChangePatronymicAsync(int clientId, string newPatronymic)
         {
-            return await _dao.ClientInfos.FirstOrDefaultAsync(client => client.User.Email == email);
+            (await GetClientByIDAsync(clientId)).Patronymic = newPatronymic;
+            await _dao.SaveChangesAsync();
         }
 
-        public async Task<ClientInfo> GetByID(int ID)
+        public async Task ChangeSurnameAsync(int clientId, string newSurname)
         {
-            return await _dao.ClientInfos.FirstOrDefaultAsync(client => client.UserId == ID);
+            (await GetClientByIDAsync(clientId)).Surname = newSurname;
+            await _dao.SaveChangesAsync();
         }
 
-        public async Task Remove(ClientInfo client)
+        public async Task<List<ClientInfo>> GetAllClientsAsync()
+            => await _dao.ClientInfos.ToListAsync();
+
+        public async Task<ClientInfo> GetClientByEmailAsync(string email)
+            => await _dao.ClientInfos.FirstOrDefaultAsync(client => client.User.Email == email);
+
+        public async Task<ClientInfo> GetClientByIDAsync(int ID)
+            => await _dao.ClientInfos.FirstOrDefaultAsync(client => client.UserId == ID); 
+
+        public async Task RemoveAsync(int clientId)
         {
-            var curClient = await _dao.Users.FindAsync(client.UserId);
+            var curClient = await GetClientByIDAsync(clientId);
             if (curClient is null) return;
 
-            _dao.Users.Remove(curClient);
+            _dao.ClientInfos.Remove(curClient);
+            _dao.Users.Remove(curClient.User);
+            await _dao.SaveChangesAsync();
         }
     }
 }

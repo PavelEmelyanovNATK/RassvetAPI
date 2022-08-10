@@ -2,9 +2,13 @@
 using Microsoft.AspNetCore.Mvc;
 using RassvetAPI.Models.ResponseModels;
 using RassvetAPI.Services.SectionsRepository;
+using RassvetAPI.Util;
+using RassvetAPI.Util.UsefulExtensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace RassvetAPI.Controllers
@@ -16,44 +20,48 @@ namespace RassvetAPI.Controllers
 
         public SectionsController(ISectionsRepository sectionsRepository)
         {
-            this._sectionsRepository = sectionsRepository;
+            _sectionsRepository = sectionsRepository;
         }
 
+        /// <summary>
+        /// Возвращает список секций, доступных в системе.
+        /// </summary>
+        /// <returns>Список с короткой информацией о каждой секции.</returns>
         [HttpGet("sections")]
         public async Task<IActionResult> GetSections()
         {
-            var sections = await _sectionsRepository.GetAllSections();
+            var sections = await _sectionsRepository.GetAllSectionsAsync();
 
-            if (sections is null) return Ok();
-
-            var sectionsShortInfo = new List<SectionShortResponse>();
-
-            foreach(var section in sections)
-            {
-                sectionsShortInfo.Add(new SectionShortResponse
+            var sectionsResponse = sections?.Select(s =>
+                new SectionShortResponse
                 {
-                    ID = section.Id,
-                    SectionName = section.Name
-                });
-            }
+                    ID = s.Id,
+                    SectionName = s.Name
+                });      
 
-            return Ok(DateTime.Now);
+            return Ok(ResponseBuilder.Create(code: 200, data: sectionsResponse));
         }
-
-        [HttpGet("sectionDetails")]
+        
+        /// <summary>
+        /// Возвращает полную информацию о секции.
+        /// </summary>
+        /// <param name="sectionId"></param>
+        /// <returns></returns>
+        [HttpGet("sectionDetails/{sectionId}")]
         public async Task<IActionResult> GetSectionDetails(int sectionId)
         {
-            var section = await _sectionsRepository.GetSection(sectionId);
+            var section = await _sectionsRepository.GetSectionAsync(sectionId);
 
-            if (section is null) return Ok();
+            var sectionResponse = section?
+                .Let(s => new SectionDetailResponse
+                {
+                    ID = s.Id,
+                    SectionName = s.Name,
+                    Description = s.Description,
+                    Price = s.Price
+                });
 
-            return Ok(new SectionDetailResponse
-            {
-                ID = section.Id,
-                SectionName = section.Name,
-                Description = section.Description,
-                Price = section.Price
-            });
+            return Ok(ResponseBuilder.Create(code: 200, data: sectionResponse));
         }
     }
 }

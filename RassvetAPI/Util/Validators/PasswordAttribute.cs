@@ -17,11 +17,11 @@ namespace RassvetAPI.Util.Validators
             return
                 password.Length >= 6
                 &&
-                password.Any(c => char.IsDigit(c))
+                password.Any(char.IsDigit)
                 &&
-                password.Any(c => char.IsLetter(c))
+                password.Any(char.IsLetter)
                 &&
-                password.Any(c => char.IsUpper(c));
+                password.Any(char.IsUpper);
         }
     }
 }

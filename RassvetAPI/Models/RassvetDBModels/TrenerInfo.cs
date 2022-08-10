@@ -9,7 +9,7 @@ namespace RassvetAPI.Models.RassvetDBModels
     {
         public TrenerInfo()
         {
-            TrenerToTrainings = new HashSet<TrenerToTraining>();
+            SectionGroups = new HashSet<SectionGroup>();
         }
 
         public int UserId { get; set; }
@@ -18,6 +18,6 @@ namespace RassvetAPI.Models.RassvetDBModels
         public string Patronymic { get; set; }
 
         public virtual User User { get; set; }
-        public virtual ICollection<TrenerToTraining> TrenerToTrainings { get; set; }
+        public virtual ICollection<SectionGroup> SectionGroups { get; set; }
     }
 }

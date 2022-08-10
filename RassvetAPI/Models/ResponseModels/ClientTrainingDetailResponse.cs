@@ -21,6 +21,6 @@ namespace RassvetAPI.Models.ResponseModels
 
         public int DurationInMinutes { get; set; }
 
-        public string TrenerFullName { get; set; }
+        public string TrainerFullName { get; set; }
     }
 }

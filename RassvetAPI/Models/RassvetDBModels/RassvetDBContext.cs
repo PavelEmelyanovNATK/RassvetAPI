@@ -17,30 +17,55 @@ namespace RassvetAPI.Models.RassvetDBModels
         {
         }
 
+        public virtual DbSet<Bill> Bills { get; set; }
         public virtual DbSet<ClientInfo> ClientInfos { get; set; }
-        public virtual DbSet<ClientToTraining> ClientToTrainings { get; set; }
-        public virtual DbSet<ClientToSection> ClientToSections { get; set; }
+        public virtual DbSet<ClientToGroup> ClientToGroups { get; set; }
+        public virtual DbSet<ManagerInfo> ManagerInfos { get; set; }
+        public virtual DbSet<Offer> Offers { get; set; }
+        public virtual DbSet<OfferType> OfferTypes { get; set; }
         public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
         public virtual DbSet<Role> Roles { get; set; }
         public virtual DbSet<Section> Sections { get; set; }
-        public virtual DbSet<TrenerInfo> TrenerInfos { get; set; }
-        public virtual DbSet<TrenerToTraining> TrenerToTrainings { get; set; }
+        public virtual DbSet<SectionGroup> SectionGroups { get; set; }
+        public virtual DbSet<Subscription> Subscriptions { get; set; }
+        public virtual DbSet<SubscriptionOrder> SubscriptionOrders { get; set; }
         public virtual DbSet<Training> Trainings { get; set; }
+        public virtual DbSet<TrenerInfo> TrenerInfos { get; set; }
         public virtual DbSet<User> Users { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer();
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see http://go.microsoft.com/fwlink/?LinkId=723263.
+                optionsBuilder.UseSqlServer("Server=NHPC\\SQLEXPRESS;Database=RassvetDB;Trusted_Connection=True;User ID=sa;Password=sa");
             }
-
-            base.OnConfiguring(optionsBuilder);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.HasAnnotation("Relational:Collation", "Cyrillic_General_CI_AS");
+
+            modelBuilder.Entity<Bill>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.ManagerId).HasColumnName("ManagerID");
+
+                entity.Property(e => e.OrderId).HasColumnName("OrderID");
+
+                entity.HasOne(d => d.Manager)
+                    .WithMany(p => p.Bills)
+                    .HasForeignKey(d => d.ManagerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Bills_ManagerInfo");
+
+                entity.HasOne(d => d.Order)
+                    .WithMany(p => p.Bills)
+                    .HasForeignKey(d => d.OrderId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Bills_SubscriptionOrder");
+            });
 
             modelBuilder.Entity<ClientInfo>(entity =>
             {
@@ -75,56 +100,93 @@ namespace RassvetAPI.Models.RassvetDBModels
                     .HasConstraintName("FK_Client_User");
             });
 
-            modelBuilder.Entity<ClientToSection>(entity =>
+            modelBuilder.Entity<ClientToGroup>(entity =>
             {
-                entity.HasKey(e => new { e.ClientId, e.SectionId });
+                entity.HasKey(e => new { e.ClientId, e.GroupId })
+                    .HasName("PK_ClientToTraining");
 
-                entity.ToTable("ClientToSection");
+                entity.ToTable("ClientToGroup");
 
                 entity.Property(e => e.ClientId).HasColumnName("ClientID");
 
-                entity.Property(e => e.SectionId).HasColumnName("SectionID");
+                entity.Property(e => e.GroupId).HasColumnName("GroupID");
 
                 entity.HasOne(d => d.Client)
-                    .WithMany(p => p.ClientToSections)
-                    .HasForeignKey(d => d.ClientId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ClientToSection_ClientInfo");
-
-                entity.HasOne(d => d.Section)
-                    .WithMany(p => p.ClientToSections)
-                    .HasForeignKey(d => d.SectionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ClientToSection_Section");
-            });
-
-            modelBuilder.Entity<ClientToTraining>(entity =>
-            {
-                entity.HasKey(e => new { e.ClientId, e.TrainingId });
-
-                entity.ToTable("ClientToTraining");
-
-                entity.Property(e => e.ClientId).HasColumnName("ClientID");
-
-                entity.Property(e => e.TrainingId).HasColumnName("TrainingID");
-
-                entity.HasOne(d => d.Client)
-                    .WithMany(p => p.ClientToTrainings)
+                    .WithMany(p => p.ClientToGroups)
                     .HasForeignKey(d => d.ClientId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
                     .HasConstraintName("FK_ClientToTraining_ClientInfo");
 
-                entity.HasOne(d => d.Training)
-                    .WithMany(p => p.ClientToTrainings)
-                    .HasForeignKey(d => d.TrainingId)
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.ClientToGroups)
+                    .HasForeignKey(d => d.GroupId)
                     .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_ClientToTraining_Training");
+                    .HasConstraintName("FK_ClientToGroup_Groups");
+            });
+
+            modelBuilder.Entity<ManagerInfo>(entity =>
+            {
+                entity.HasKey(e => e.UserId);
+
+                entity.ToTable("ManagerInfo");
+
+                entity.Property(e => e.UserId)
+                    .ValueGeneratedNever()
+                    .HasColumnName("UserID");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Patronymic)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.Surname)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.HasOne(d => d.User)
+                    .WithOne(p => p.ManagerInfo)
+                    .HasForeignKey<ManagerInfo>(d => d.UserId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_ManagerInfo_Users");
+            });
+
+            modelBuilder.Entity<Offer>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.OfferTypeId).HasColumnName("OfferTypeID");
+
+                entity.Property(e => e.SectionId).HasColumnName("SectionID");
+
+                entity.HasOne(d => d.OfferType)
+                    .WithMany(p => p.Offers)
+                    .HasForeignKey(d => d.OfferTypeId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Offers_OfferTypes");
+
+                entity.HasOne(d => d.Section)
+                    .WithMany(p => p.Offers)
+                    .HasForeignKey(d => d.SectionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Offers_Sections");
+            });
+
+            modelBuilder.Entity<OfferType>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .ValueGeneratedNever()
+                    .HasColumnName("ID");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<RefreshToken>(entity =>
             {
-                entity.ToTable("RefreshToken");
-
                 entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Token)
@@ -142,8 +204,6 @@ namespace RassvetAPI.Models.RassvetDBModels
 
             modelBuilder.Entity<Role>(entity =>
             {
-                entity.ToTable("Role");
-
                 entity.Property(e => e.Id)
                     .ValueGeneratedNever()
                     .HasColumnName("ID");
@@ -156,8 +216,6 @@ namespace RassvetAPI.Models.RassvetDBModels
 
             modelBuilder.Entity<Section>(entity =>
             {
-                entity.ToTable("Section");
-
                 entity.Property(e => e.Id).HasColumnName("ID");
 
                 entity.Property(e => e.Description)
@@ -167,6 +225,110 @@ namespace RassvetAPI.Models.RassvetDBModels
                 entity.Property(e => e.Name)
                     .IsRequired()
                     .HasMaxLength(100);
+            });
+
+            modelBuilder.Entity<SectionGroup>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Name)
+                    .IsRequired()
+                    .HasMaxLength(30);
+
+                entity.Property(e => e.SectionId).HasColumnName("SectionID");
+
+                entity.Property(e => e.TrenerId).HasColumnName("TrenerID");
+
+                entity.HasOne(d => d.Section)
+                    .WithMany(p => p.SectionGroups)
+                    .HasForeignKey(d => d.SectionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SectionGroups_Sections");
+
+                entity.HasOne(d => d.Trener)
+                    .WithMany(p => p.SectionGroups)
+                    .HasForeignKey(d => d.TrenerId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SectionGroups_TrenerInfo");
+            });
+
+            modelBuilder.Entity<Subscription>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.ClientId).HasColumnName("ClientID");
+
+                entity.Property(e => e.ExpirationDate).HasColumnType("date");
+
+                entity.Property(e => e.SectionId).HasColumnName("SectionID");
+
+                entity.Property(e => e.StartDate).HasColumnType("date");
+
+                entity.HasOne(d => d.Client)
+                    .WithMany(p => p.Subscriptions)
+                    .HasForeignKey(d => d.ClientId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Subscriptions_ClientInfo");
+
+                entity.HasOne(d => d.Section)
+                    .WithMany(p => p.Subscriptions)
+                    .HasForeignKey(d => d.SectionId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Subscriptions_Sections");
+            });
+
+            modelBuilder.Entity<SubscriptionOrder>(entity =>
+            {
+                entity.ToTable("SubscriptionOrder");
+
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.ClientId).HasColumnName("ClientID");
+
+                entity.Property(e => e.Date)
+                    .HasColumnType("datetime")
+                    .HasDefaultValueSql("(getdate())");
+
+                entity.Property(e => e.OfferId).HasColumnName("OfferID");
+
+                entity.HasOne(d => d.Client)
+                    .WithMany(p => p.SubscriptionOrders)
+                    .HasForeignKey(d => d.ClientId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SubscriptionOrder_ClientInfo");
+
+                entity.HasOne(d => d.Offer)
+                    .WithMany(p => p.SubscriptionOrders)
+                    .HasForeignKey(d => d.OfferId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_SubscriptionOrder_Offers");
+            });
+
+            modelBuilder.Entity<Training>(entity =>
+            {
+                entity.Property(e => e.Id).HasColumnName("ID");
+
+                entity.Property(e => e.Description)
+                    .IsRequired()
+                    .HasMaxLength(300);
+
+                entity.Property(e => e.GroupId).HasColumnName("GroupID");
+
+                entity.Property(e => e.Room)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                entity.Property(e => e.StartDate).HasColumnType("datetime");
+
+                entity.Property(e => e.Title)
+                    .IsRequired()
+                    .HasMaxLength(150);
+
+                entity.HasOne(d => d.Group)
+                    .WithMany(p => p.Trainings)
+                    .HasForeignKey(d => d.GroupId)
+                    .OnDelete(DeleteBehavior.ClientSetNull)
+                    .HasConstraintName("FK_Training_Group");
             });
 
             modelBuilder.Entity<TrenerInfo>(entity =>
@@ -198,33 +360,8 @@ namespace RassvetAPI.Models.RassvetDBModels
                     .HasConstraintName("FK_Trener_User");
             });
 
-            modelBuilder.Entity<TrenerToTraining>(entity =>
-            {
-                entity.HasKey(e => new { e.TrenerId, e.TrainingId });
-
-                entity.ToTable("TrenerToTraining");
-
-                entity.Property(e => e.TrenerId).HasColumnName("TrenerID");
-
-                entity.Property(e => e.TrainingId).HasColumnName("TrainingID");
-
-                entity.HasOne(d => d.Training)
-                    .WithMany(p => p.TrenerToTrainings)
-                    .HasForeignKey(d => d.TrainingId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TrenerToTraining_Training");
-
-                entity.HasOne(d => d.Trener)
-                    .WithMany(p => p.TrenerToTrainings)
-                    .HasForeignKey(d => d.TrenerId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_TrenerToTraining_TrenerInfo");
-            });
-
             modelBuilder.Entity<User>(entity =>
             {
-                entity.ToTable("User");
-
                 entity.HasIndex(e => e.Email, "UQ_User_Email")
                     .IsUnique();
 
@@ -247,35 +384,6 @@ namespace RassvetAPI.Models.RassvetDBModels
                     .HasForeignKey(d => d.RoleId)
                     .OnDelete(DeleteBehavior.SetNull)
                     .HasConstraintName("FK_User_Role");
-            });
-
-            modelBuilder.Entity<Training>(entity =>
-            {
-                entity.ToTable("Training");
-
-                entity.Property(e => e.Id).HasColumnName("ID");
-
-                entity.Property(e => e.Description)
-                    .IsRequired()
-                    .HasMaxLength(300);
-
-                entity.Property(e => e.Room)
-                    .IsRequired()
-                    .HasMaxLength(50);
-
-                entity.Property(e => e.SectionId).HasColumnName("SectionID");
-
-                entity.Property(e => e.StartDate).HasColumnType("datetime");
-
-                entity.Property(e => e.Title)
-                    .IsRequired()
-                    .HasMaxLength(150);
-
-                entity.HasOne(d => d.Section)
-                    .WithMany(p => p.Trainings)
-                    .HasForeignKey(d => d.SectionId)
-                    .OnDelete(DeleteBehavior.ClientSetNull)
-                    .HasConstraintName("FK_Training_Section");
             });
 
             OnModelCreatingPartial(modelBuilder);

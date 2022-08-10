@@ -5,9 +5,16 @@ using System.Collections.Generic;
 
 namespace RassvetAPI.Models.RassvetDBModels
 {
-    public partial class SectionType
+    public partial class OfferType
     {
+        public OfferType()
+        {
+            Offers = new HashSet<Offer>();
+        }
+
         public int Id { get; set; }
         public string Name { get; set; }
+
+        public virtual ICollection<Offer> Offers { get; set; }
     }
 }
